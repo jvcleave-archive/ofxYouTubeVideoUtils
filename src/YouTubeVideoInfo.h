@@ -1,7 +1,59 @@
 #pragma once
 #include "ofMain.h"
 #include "Poco/URI.h"
-#include "YouTubeVideo.h"
+
+class YouTubeVideoURL
+{
+public:
+    string videoID;
+    string url;
+    int itag;
+    map<string, string> valueMap;
+    vector<string> valueMapNames;
+    
+    YouTubeVideoURL()
+    {
+        videoID = "";
+        url = "";
+        itag = -1;
+    }
+    
+    void setup(string videoID_, string url_)
+    {
+        videoID = videoID_;
+        url = url_;
+        
+        vector <string> params = ofSplitString(url, "&");
+        for(size_t i=0; i<params.size(); i++)
+        {
+            string currentParam = params[i];
+            vector <string> keyValues = ofSplitString(currentParam, "=");
+            if(keyValues.size()>=2)
+            {
+                if(keyValues[0] == "itag")
+                {
+                    itag = ofToInt(keyValues[1]);
+                }
+                valueMap[keyValues[0]] = keyValues[1];
+                valueMapNames.push_back(keyValues[0]);
+            }
+        }
+    }
+    
+    void print()
+    {
+        stringstream info;
+        info << "url: " << url << "\n";
+        info << "itag: " << itag << "\n";
+        
+        info << "valueMap key/values START \n";
+        for(size_t i=0; i<valueMapNames.size(); i++)
+        {
+            info << valueMapNames[i] << " : " << valueMap[valueMapNames[i]] << "\n";
+        }
+        ofLogVerbose(__func__) << info.str();
+    }
+};
 
 class YouTubeVideoInfo
 {
@@ -19,7 +71,7 @@ public:
     vector <string> keys;
     vector <string> values;
     
-    vector<YouTubeVideo> videos;
+    vector<YouTubeVideoURL> videoURLs;
     vector <int> itags;
     vector<string> urls;
     
@@ -34,9 +86,9 @@ public:
     };
     
     
-    bool load(string videoID)
+    bool fetchInfo(string videoID_)
     {
-        this->videoID = videoID;
+        videoID = videoID_;
         
         bool wasSuccessful = false;
         string url = API_URL+videoID;
@@ -82,7 +134,9 @@ public:
                   
                     if(key == "itag")
                     {
-                        itags.push_back(ofToInt(value));
+                        int intTag = ofToInt(value);
+                        ofLogVerbose() << "intTag: " << intTag;
+                        itags.push_back(intTag);
                     }
                     
                     if(key == "title")
@@ -109,12 +163,9 @@ public:
             for(size_t i=0; i<urls.size(); i++)
             {
                 //ofLogVerbose(__func__) << i <<  " url: " << urls[i];
-                YouTubeVideo youtubeVideo;
-                youtubeVideo.videoID = videoID;
-                youtubeVideo.title = title;
-                youtubeVideo.author = author;
-                youtubeVideo.setup(urls[i]);
-                videos.push_back(youtubeVideo);
+                YouTubeVideoURL youtubeVideoURL;
+                youtubeVideoURL.setup(videoID, urls[i]);
+                videoURLs.push_back(youtubeVideoURL);
             }
             
             wasSuccessful = true;
@@ -126,24 +177,38 @@ public:
         return wasSuccessful;
     }
     
-    vector<YouTubeVideo> getOptimizedVideos(vector<int> itags)
+    vector<YouTubeVideoURL> getPreferredFormats(vector<int> itags)
     {
-        vector<YouTubeVideo> optimizedVideos;
-        
-        for(size_t i=0; i<videos.size(); i++)
+        vector<YouTubeVideoURL> preferredURLs;
+        vector<int> availableTags;
+        for(size_t i=0; i<videoURLs.size(); i++)
         {
             for(size_t j=0; j<itags.size(); j++)
             {
                 int currentTag = itags[j];
-                if(videos[i].itag == currentTag)
+                availableTags.push_back(currentTag);
+                if(videoURLs[i].itag == currentTag)
                 {
-                    optimizedVideos.push_back(videos[i]);
-                    break;
+                    preferredURLs.push_back(videoURLs[i]);
                 }
             }
         }
         
-        return optimizedVideos;
+        if(preferredURLs.empty())
+        {
+            stringstream info;
+            info << "NO PREFFERED TAGS AVAILABLE FOR " << videoID << " AVAILABLE FORMATS ARE: \n";
+            for(size_t i=0; i<availableTags.size(); i++)
+            {
+                info << availableTags[i] << "\n";
+            }
+            if(availableTags.empty())
+            {
+                printKeyValueMap();
+            }
+            ofLogVerbose() << info.str();
+        }
+        return preferredURLs;
     }
     
     void printKeyValueMap()

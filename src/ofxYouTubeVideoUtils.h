@@ -2,7 +2,74 @@
 #include "ofMain.h"
 #include "YouTubeVideoInfo.h"
 
+class YouTubeVideoFormat
+{
 
+public:
+    int itag;
+    int width;
+    int height;
+    float fps;
+    string fileExtension;
+    string audioCodec;
+    string videoCodec;
+    YouTubeVideoFormat()
+    {
+        itag=0;
+        width=0;
+        height=0;
+        fps=0.0;
+        fileExtension = "";
+        audioCodec = "";
+        videoCodec = "";
+    }
+    void setup(int itag, string fileExtension, int width=0, int height=0, string audioCodec="", string videoCodec="", float fps=0.0)
+    {
+        itag = itag;
+        fileExtension=fileExtension;
+        height=height;
+        width=width;
+        audioCodec=audioCodec;
+        videoCodec=videoCodec;
+        fps=fps;
+    }
+    
+};
+
+class YouTubeDownloadRequest
+{
+    public:
+        string url;
+        string videoID;
+        string filePath;
+        YouTubeDownloadRequest()
+        {
+            url="";
+            videoID="";
+            filePath = "";
+        }
+};
+
+class YouTubeDownloadEventData
+{
+public:
+    YouTubeDownloadEventData(YouTubeDownloadRequest& downloadRequest, ofHttpResponse& httpResponse, void* listener)
+    {
+        this->downloadRequest  = downloadRequest;
+        this->httpResponse = httpResponse;
+        this->listener = listener;
+    }
+    void* listener;
+    ofHttpResponse httpResponse;
+    YouTubeDownloadRequest downloadRequest;
+};
+
+class YouTubeDownloadEventListener
+{
+public:
+    virtual void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e) = 0;
+    virtual void onYouTubeDownloadEventError(YouTubeDownloadEventData& e) = 0;
+};
 
 
 
@@ -17,7 +84,12 @@ class ofxYouTubeVideoUtils
         map<string, YouTubeVideoInfo> infoCollection;
         void printKeyValueMap(string youTubeVideoID);
         map<int, YouTubeVideoFormat> videoFormats;
+        bool downloadVideo(YouTubeVideoURL videoURL, bool doAsync=false);
+        void urlResponse(ofHttpResponse & response);
     
+        vector<YouTubeDownloadRequest> downloadRequests;
+    
+        YouTubeDownloadEventListener* listener;
     private:
         void createVideoFormat(int itag, string fileExtension, int width=0, int height=0, string audioCodec="", string videoCodec="", float fps=0);
         void createKnownFormats();
