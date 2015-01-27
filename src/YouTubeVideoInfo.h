@@ -137,6 +137,7 @@ public:
                         int intTag = ofToInt(value);
                         ofLogVerbose() << "intTag: " << intTag;
                         itags.push_back(intTag);
+                        
                     }
                     
                     if(key == "title")
@@ -165,7 +166,14 @@ public:
                 //ofLogVerbose(__func__) << i <<  " url: " << urls[i];
                 YouTubeVideoURL youtubeVideoURL;
                 youtubeVideoURL.setup(videoID, urls[i]);
-                videoURLs.push_back(youtubeVideoURL);
+                if(youtubeVideoURL.itag != -1)
+                {
+                    videoURLs.push_back(youtubeVideoURL);
+                }else
+                {
+                    ofLogVerbose() << "urls[i] REJECTED: " << urls[i];
+                }
+                
             }
             
             wasSuccessful = true;
