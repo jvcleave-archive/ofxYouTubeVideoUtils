@@ -1,2 +1,1 @@
-ofxOMXPlayer
 ofxYouTubeVideoUtils

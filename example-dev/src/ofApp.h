@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxOMXPlayer.h"
-#include "TerminalListener.h"
 #include "ofxYouTubeVideoUtils.h"
 
 
