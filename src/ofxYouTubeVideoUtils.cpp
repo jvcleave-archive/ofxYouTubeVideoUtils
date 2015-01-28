@@ -1,10 +1,5 @@
 #include "ofxYouTubeVideoUtils.h"
 
-ofxYouTubeVideoUtils::ofxYouTubeVideoUtils()
-{
-    createKnownFormats();
-}
-
 
 
 YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
@@ -22,12 +17,7 @@ void ofxYouTubeVideoUtils::printKeyValueMap(string youTubeVideoID)
 }
 
 
-void ofxYouTubeVideoUtils::createVideoFormat(int itag, string fileExtension, int width, int height, string audioCodec, string videoCodec, float fps)
-{
-    YouTubeVideoFormat format;
-    format.setup(itag, fileExtension, width, height, audioCodec, videoCodec, fps);
-    videoFormats[itag] = format;
-}
+
 
 string isRedirect(string& url)
 {
@@ -132,18 +122,7 @@ void ofxYouTubeVideoUtils::urlResponse(ofHttpResponse& response)
         }
     }
 }
-
-#if 0
-enum YouTubeFormatType
-{
-    WIDTH_UNKNOWN,
-    HEIGHT_UNKNOWN,
-    MP4,
-    3GP,
-    AUDIOCODEC_NONE,
-    VIDEOCODEC_H264
-};
-#endif
+/*
 void ofxYouTubeVideoUtils::createKnownFormats()
 {
     int WIDTH_UNKNOWN=0;
@@ -196,90 +175,8 @@ void ofxYouTubeVideoUtils::createKnownFormats()
     createVideoFormat(299, "mp4",   1920,   1080,   NO_AUDIO,   H264, 60.0); //checked
     createVideoFormat(266, "mp4", WIDTH_UNKNOWN, 2160, "none");
 }
-/*
-Non-DASH
-+------+------------------+-----------------+---------------+--------------+-------------------+---------------+-------------------+----+
-| itag | DefaultContainer | VideoResolution | VideoEncoding | VideoProfile | VideoBitrateMbits | AudioEncoding | AudioBitratekbits |    |
-+------+------------------+-----------------+---------------+--------------+-------------------+---------------+-------------------+----+
-|    5 | FLV              | 240P            | Sorenson      | H263         | NA                | 0.25          | MP3               | 64 |
-|    6 | FLV              | 270P            | Sorenson      | H263         | NA                | 0.8           | MP3               | 64 |
-|   13 | 3GP              | NA              | MPEG4         | Visual       | NA                | 0.5           | AAC               | NA |
-|   17 | 3GP              | 144p            | MPEG4         | Visual       | Simple            | 0.05          | AAC               | 24 |
-|   18 | MP4              | 360P            | H264          | Baseline     | 0.5               | AAC           | 96                |    |
-|   22 | MP4              | 720P            | H264          | High         | 2-3               | AAC           | 192               |    |
-|   34 | FLV              | 360P            | H264          | Main         | 0.5               | AAC           | 128               |    |
-|   35 | FLV              | 480P            | H264          | Main         | 0.8-1             | AAC           | 128               |    |
-|   36 | 3GP              | 240P            | MPEG-4        | Visual       | Simple            | 0.175         | AAC               | 32 |
-|   37 | MP4              | 1080P           | H264          | High         | 3–5.9             | AAC           | 192               |    |
-|   38 | MP4              | 3072p           | H264          | High         | 3.5-5             | AAC           | 192               |    |
-|   43 | WebM             | 360P            | VP8           | NA           | 0.5               | Vorbis        | 128               |    |
-|   44 | WebM             | 480P            | VP8           | NA           | 1                 | Vorbis        | 128               |    |
-|   45 | WebM             | 720P            | VP8           | NA           | 2                 | Vorbis        | 192               |    |
-|   46 | WebM             | 1080P           | VP8           | NA           | NA                | Vorbis        | 192               |    |
-|   82 | MP4              | 360P            | H264          | 3D           | 0.5               | AAC           | 96                |    |
-|   83 | MP4              | 240P            | H264          | 3D           | 0.5               | AAC           | 96                |    |
-|   84 | MP4              | 720P            | H264          | 3D           | 2-3               | AAC           | 192               |    |
-|   85 | MP4              | 1080P           | H264          | 3D           | 3-4               | AAC           | 192               |    |
-|  100 | WebM             | 360P            | VP8           | 3D           | NA                | Vorbis        | 128               |    |
-|  101 | WebM             | 360P            | VP8           | 3D           | NA                | Vorbis        | 192               |    |
-|  102 | WebM             | 720P            | VP8           | 3D           | NA                | Vorbis        | 192               |    |
-+------+------------------+-----------------+---------------+--------------+-------------------+---------------+-------------------+----+
-
-DASH (video only)
-+------+------------------+-----------------+---------------+--------------+-------------------+
-| itag | DefaultContainer | VideoResolution | VideoEncoding | VideoProfile | VideoBitrateMbits |
-+------+------------------+-----------------+---------------+--------------+-------------------+
-|  133 | MP4              | 240p            | H264          | Main         | 0.2-0.3           |
-|  134 | MP4              | 360p            | H264          | Main         | 0.3-0.4           |
-|  135 | MP4              | 480p            | H264          | Main         | 0.5-1             |
-|  136 | MP4              | 720p            | H264          | Main         | 1-1.5             |
-|  137 | MP4              | 1080p           | H264          | High         | 2.5-3             |
-|  138 | MP4              | 2160p           | H264          | High         | 13.5              |
-|  160 | MP4              | 144p            | H264          | Main         | 0.1               |
-|  242 | WebM             | 240p            | VP9           | NA           | 0.1-0.2           |
-|  243 | WebM             | 360p            | VP9           | NA           | 0.25              |
-|  244 | WebM             | 480p            | VP9           | NA           | 0.5               |
-|  247 | WebM             | 720p            | VP9           | NA           | 0.7-0.8           |
-|  248 | WebM             | 1080p           | VP9           | NA           | 1.5               |
-|  264 | MP4              | 1440p           | H264          | High         | 4-4.5             |
-|  266 | MP4              | 2160p           | H264          | High         | 12.5-13.5         |
-|  271 | WebM             | 1440p           | VP9           | NA           | 9                 |
-|  272 | WebM             | 2160p           | VP9           | NA           | 15-17.5           |
-|  278 | WebM             | 144p            | VP9           | NA           | 0.08              |
-|  298 | MP4              | 720p_HFR        | H264          | Main         | 3-3.5             |
-|  299 | MP4              | 1080p_HFR       | H264          | High         | 5.5               |
-|  302 | WebM             | 720p_HFR        | VP9           | NA           | 2.5               |
-|  303 | WebM             | 1080p_HFR       | VP9           | NA           | 5                 |
-|  313 | WebM             | 2160p           | VP9           | NA           | 13-15             |
-+------+------------------+-----------------+---------------+--------------+-------------------+
-
-DASH (audio only)
-+------+------------------+---------------+-------------------+
-| itag | DefaultContainer | AudioEncoding | AudioBitratekbits |
-+------+------------------+---------------+-------------------+
-|  139 | MP4              | AAC           |                48 |
-|  140 | MP4              | AAC           |               128 |
-|  141 | MP4              | AAC           |               256 |
-|  171 | WebM             | Vorbis        |               128 |
-|  172 | WebM             | Vorbis        |               192 |
-+------+------------------+---------------+-------------------+
-
-Live streaming
-+------+------------------+-----------------+---------------+--------------+-------------------+---------------+-------------------+
-| itag | DefaultContainer | VideoResolution | VideoEncoding | VideoProfile | VideoBitrateMbits | AudioEncoding | AudioBitratekbits |
-+------+------------------+-----------------+---------------+--------------+-------------------+---------------+-------------------+
-|   92 | TS               | 240p            | H264          | Main         | 0.15-0.3          | AAC           |                48 |
-|   93 | TS               | 360p            | H264          | Main         | 0.5-1             | AAC           |               128 |
-|   94 | TS               | 480p            | H264          | Main         | 0.8-1.25          | AAC           |               128 |
-|   95 | TS               | 720p            | H264          | Main         | 1.5-3             | AAC           |               256 |
-|   96 | TS               | 1080p           | H264          | High         | 2.5-6             | AAC           |               256 |
-|  120 | FLV              | 720p            | H264          | Main@L3.1    | 2                 | AAC           |               128 |
-|  127 | TS               | NA              | NA            | NA           | NA                | AAC           |                96 |
-|  128 | TS               | NA              | NA            | NA           | NA                | AAC           |                96 |
-|  132 | TS               | 240p            | H264          | Baseline     | 0.15-0.2          | AAC           |                48 |
-|  151 | TS               | 72p             | H264          | Baseline     | 0.05              | AAC           |                24 |
-+------+------------------+-----------------+---------------+--------------+-------------------+---------------+-------------------+
- 
 */
+
+
 
 
