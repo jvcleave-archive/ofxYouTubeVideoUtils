@@ -33,44 +33,103 @@ string isRedirect(string& url)
     return url;
 }
 
-bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL, bool doAsync)
+string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
+                                            bool groupIntoFolder) //default: false
+{
+    stringstream name;
+    name << videoURL.videoID;
+    name << "_";
+    name << videoURL.itag;
+    
+    YouTubeFormat& format = formats[videoURL.itag];
+    ofLogVerbose() << "VIDEO_RESOLUTION: " << format.videoResolution;
+    switch (format.container)
+    {
+        case YouTubeFormat::CONTAINER_3GP:  { name << ".3gp";   break;  }
+        case YouTubeFormat::CONTAINER_FLV:  { name << ".flv";   break;  }
+        case YouTubeFormat::CONTAINER_MP4:  { name << ".mp4";   break;  }
+        case YouTubeFormat::CONTAINER_WEBM: { name << ".webm";  break;  }
+        case YouTubeFormat::CONTAINER_TS:   { name << ".webm";  break;  }
+        default:                            { name << ".unknownformat"; }
+    }
+    
+    string fileName;
+    if(groupIntoFolder)
+    {
+        ofDirectory groupFolder = ofToDataPath(videoURL.videoID, true);
+        if(!groupFolder.exists())
+        {
+            groupFolder.create();
+        }
+        fileName = groupFolder.getAbsolutePath()+"/"+name.str();
+    }else
+    {
+        fileName = ofToDataPath(name.str(), true);
+    }
+    
+    ofLogVerbose() << "fileName: " << fileName;
+
+    return fileName;
+}
+bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
+                                         bool doAsync,              //default: false
+                                         bool doOverwriteExisting,  //default: false
+                                         bool groupIntoFolder,      //default: false
+                                         string customPath)         //default: ""
 {
     bool success = false;
     stringstream info;
     
-    string fileName = videoURL.videoID + "_" + ofToString(videoURL.itag) + ".mp4";
-    fileName = ofToDataPath(fileName, true);
+    string fileName = createFileName(videoURL, groupIntoFolder);
+    
     ofFile file(fileName);
-    if(file.exists())
+    
+    YouTubeDownloadRequest downloadRequest;
+    downloadRequest.url = videoURL.url;
+    downloadRequest.videoID = videoURL.videoID;
+    downloadRequest.filePath = fileName;
+    if(file.exists() && file.getSize()==0)
+    {
+        info << "fileName: " << fileName << " EXISTS - BUT IS 0 bytes";
+        doOverwriteExisting = true;
+    }
+
+    
+    
+    if(file.exists() && !doOverwriteExisting)
     {
         info << "fileName: " << fileName << " EXISTS - NOT OVERWRITING";
+        if(listener)
+        {
+            YouTubeDownloadEventData eventData((void *)this, fileName+ " EXISTS - DID NOT OVERWRITE");
+            broadcastDownloadEventComplete(eventData);
+        }
         success = true;
     }else
     {
         
-        
-        int response = -1;
-        
         info << "DOWNLOADING TO: " << fileName;
         info << " ASYNC: " << doAsync;
+        
+        
+        
         if (doAsync)
         {
-            ofRegisterURLNotification(this);
-            YouTubeDownloadRequest downloadRequest;
-            downloadRequest.url = videoURL.url;
-            downloadRequest.videoID = videoURL.videoID;
-            downloadRequest.filePath = fileName;
+            ofAddListener(ofURLResponseEvent(),this,&ofxYouTubeVideoUtils::urlResponse);
             
+            downloadRequest.isAsync = true;
             downloadRequests.push_back(downloadRequest);
-            //isRedirect(downloadRequest.url);
             
             int queueID = ofSaveURLAsync(downloadRequest.url, fileName);
             info << " queueID: " << queueID;
             success = true;
         }else
         {
+            downloadRequest.isAsync = false;
+            
             ofHttpResponse httpResponse = ofSaveURLTo(videoURL.url, fileName);
             info << " response: " << httpResponse.status;
+            
             if(httpResponse.status == 302)
             {
                 ofLogVerbose(__func__) << "302 !!!!!!!!!! \n response.data.getText: " << httpResponse.data.getText();
@@ -79,22 +138,45 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL, bool doAsync)
                 ofLogVerbose() << "url: \n\n\n" << videoURL.url;
             }else
             {
+                
                 if(httpResponse.status>0)
                 {
+                    
                     success = true;
                 }else
                 {
                     info << " DOWNLOAD FAILED with response " << httpResponse.status;
                 }
             }
+            YouTubeDownloadEventData eventData(downloadRequest, httpResponse, (void *)this);
+            if(success)
+            {
+                broadcastDownloadEventComplete(eventData);
+            }else
+            {
+                broadcastDownloadEventError(eventData);
+            }
+            
         }
         
     }
     ofLogVerbose(__func__) << info.str();
     
     return success;
+
 }
 
+void ofxYouTubeVideoUtils::broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData)
+{
+    if(!listener) return;
+    listener->onYouTubeDownloadEventComplete(eventData);
+}
+
+void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData& eventData)
+{
+    if(!listener) return;
+    listener->onYouTubeDownloadEventError(eventData);
+}
 void ofxYouTubeVideoUtils::urlResponse(ofHttpResponse& response)
 {
     //ofLogVerbose(__func__) << "response.request.url: " << response.request.url;
@@ -108,75 +190,25 @@ void ofxYouTubeVideoUtils::urlResponse(ofHttpResponse& response)
                 if(listener)
                 {
                     YouTubeDownloadEventData eventData(downloadRequests[i], response, (void *)this);
-                    listener->onYouTubeDownloadEventComplete(eventData);
+                    broadcastDownloadEventComplete(eventData);
                 }
             }else
             {
                 if(listener)
                 {
                     YouTubeDownloadEventData eventData(downloadRequests[i], response, (void *)this);
-                    listener->onYouTubeDownloadEventError(eventData);
+                    broadcastDownloadEventError(eventData);
+                    
                 }
             }
-            
+            downloadRequests.erase(downloadRequests.begin() + i);
         }
     }
+    if (downloadRequests.empty())
+    {
+        ofLogVerbose(__func__) << "ALL DOWNLOADS COMPLETE";
+    }
 }
-/*
-void ofxYouTubeVideoUtils::createKnownFormats()
-{
-    int WIDTH_UNKNOWN=0;
-    string NO_AUDIO="";
-    string NO_VIDEO="";
-    string H264="";
-    string MPEG4="";
-    string VP9="";
-    string FLASH="";
-    
-    string AAC="";
-    string MPEG_AUDIO = "";
-    string WEBM_AUDIO = "";
-    
-    createVideoFormat(5, "flv",     426,    240,    MPEG_AUDIO, FLASH);//checked
-    createVideoFormat(13, "3gp");
-    createVideoFormat(17, "3gp",    176,    144,    AAC,        MPEG4); //checked
-    createVideoFormat(18, "mp4",    640,    360,    AAC,        H264);  //checked
-    createVideoFormat(22, "mp4",    1280,   720,    AAC,        H264);  //checked
-    createVideoFormat(36, "3gp",    320,    240,    AAC,        MPEG4); //checked
-    createVideoFormat(37, "mp4",    1920,   1080);
-    createVideoFormat(38, "mp4",    4096,   3072);
-    //probably 3D
-    createVideoFormat(82, "mp4",    640,    360,    AAC,        H264);  //3d, checked
-    createVideoFormat(83, "mp4",    640,    480);
-    createVideoFormat(84, "mp4",    1280,   720, AAC);//3d
-    createVideoFormat(85, "mp4",    1920,   1080);
-    //probably WEBM
-    createVideoFormat(92, "mp4",    320,    240);
-    createVideoFormat(93, "mp4",    480,    360);
-    createVideoFormat(94, "mp4",    640,    480);
-    createVideoFormat(95, "mp4",    1280,   720);
-    createVideoFormat(96, "mp4",    1920,   1080);
-    
-    createVideoFormat(160, "mp4",   256,    144,    NO_AUDIO,   H264); //checked
-    createVideoFormat(151, "mp4",   128,    72);
-    createVideoFormat(132, "mp4", WIDTH_UNKNOWN, 240);
-    createVideoFormat(133, "mp4",   426,    240,    NO_AUDIO,   H264); //checked
-    createVideoFormat(134, "mp4",   640,    360,    NO_AUDIO,   H264); //checked
-    createVideoFormat(135, "mp4",   854,    480,    NO_AUDIO,   H264); //checked
-    createVideoFormat(136, "mp4",   1280,   720,    NO_AUDIO,   H264); //checked
-    createVideoFormat(137, "mp4",   1920,   1080,   NO_AUDIO,   H264); //checked
-    createVideoFormat(140, "mp4",   0,      0,      AAC,        NO_VIDEO); //checked
-    createVideoFormat(171, "mp4",   0,      0,      WEBM_AUDIO, NO_VIDEO); //checked
-    
-    
-    createVideoFormat(264, "mp4",   2560,   1440,   NO_AUDIO,   H264); //checked
-    createVideoFormat(242, "VP9",   426,    240,    NO_AUDIO,   VP9); //checked
-    createVideoFormat(298, "mp4",   1280,   720,    NO_AUDIO,   H264, 60.0); //checked
-    createVideoFormat(299, "mp4",   1920,   1080,   NO_AUDIO,   H264, 60.0); //checked
-    createVideoFormat(266, "mp4", WIDTH_UNKNOWN, 2160, "none");
-}
-*/
-
 
 
 
