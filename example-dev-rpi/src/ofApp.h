@@ -26,12 +26,5 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
     
         stringstream info;
     
-        ofVideoPlayer videoPlayer;
-    
-        vector<string> videoPaths;
-        vector<ofImage> largeImages;
-    
-        bool loadNextMovie();
-    
 };
 

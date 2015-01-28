@@ -21,35 +21,43 @@ class YouTubeDownloadRequest
 
 class YouTubeDownloadEventData
 {
-public:
-    YouTubeDownloadEventData(YouTubeDownloadRequest& downloadRequest_, ofHttpResponse& httpResponse_, void* listener_, string message_="")
-    {
-        downloadRequest  = downloadRequest_;
-        httpResponse = httpResponse_;
-        listener = listener_;
-        message = message_;
-    }
-    YouTubeDownloadEventData(void* listener_, string message_="")
-    {
-        listener = listener_;
-        message = message_;
-    }
-    YouTubeDownloadEventData()
-    {
-        listener=NULL;
-        message="";
-    }
-    void* listener;
-    string message;
-    ofHttpResponse httpResponse;
-    YouTubeDownloadRequest downloadRequest;
+    public:
+        YouTubeDownloadEventData(YouTubeDownloadRequest& downloadRequest_, ofHttpResponse& httpResponse_, void* listener_, string message_="")
+        {
+            downloadRequest  = downloadRequest_;
+            httpResponse = httpResponse_;
+            listener = listener_;
+            message = message_;
+        }
+        
+        YouTubeDownloadEventData(YouTubeDownloadRequest& downloadRequest_,  void* listener_, string message_="")
+        {
+            downloadRequest  = downloadRequest_;
+            listener = listener_;
+            message = message_;
+        }
+        
+        YouTubeDownloadEventData(void* listener_, string message_="")
+        {
+            listener = listener_;
+            message = message_;
+        }
+        YouTubeDownloadEventData()
+        {
+            listener=NULL;
+            message="";
+        }
+        void* listener;
+        string message;
+        ofHttpResponse httpResponse;
+        YouTubeDownloadRequest downloadRequest;
 };
 
 class YouTubeDownloadEventListener
 {
-public:
-    virtual void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e) = 0;
-    virtual void onYouTubeDownloadEventError(YouTubeDownloadEventData& e) = 0;
+    public:
+        virtual void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e) = 0;
+        virtual void onYouTubeDownloadEventError(YouTubeDownloadEventData& e) = 0;
 };
 
 class ofxYouTubeVideoUtils
@@ -59,50 +67,55 @@ class ofxYouTubeVideoUtils
         map<string, YouTubeVideoInfo> infoCollection;
         void printKeyValueMap(string youTubeVideoID);
         YouTubeFormat formatter;
-    
+
         map<int, YouTubeFormat> formats;
-    
+
         bool downloadVideo(YouTubeVideoURL videoURL,
                            bool doAsync=false,
                            bool doOverwriteExisting=false,
                            bool groupIntoFolder=false,
                            string customPath="");
-    
-        void urlResponse(ofHttpResponse & response);
-    
+
+        void downloadAllImages(YouTubeVideoInfo& videoInfo);
+
+        void onVideoHTTPResponse(ofHttpResponse & response);
+
         vector<YouTubeDownloadRequest> downloadRequests;
-    
+
         YouTubeDownloadEventListener* listener;
-    
-    ofxYouTubeVideoUtils()
-    {
-        formatter.createFormats(formats);
-    }
-    ~ofxYouTubeVideoUtils()
-    {
-        ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
-        if(!downloadRequests.empty())
+
+        ofxYouTubeVideoUtils()
         {
-            ofStopURLLoader();
-            ofRemoveAllURLRequests();
+            formatter.createFormats(formats);
         }
-        
-    }
-    void addListener(YouTubeDownloadEventListener* listener_)
-    {
-        listener = listener_;
-    }
-    void removeListener(YouTubeDownloadEventListener* listener_)
-    {
-        if(listener_ == listener)
-        {
-            listener = NULL;
-        }
-    }
     
-    string createFileName(YouTubeVideoURL& videoURL, bool groupIntoFolder = false);
-    void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
-    void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
+        ~ofxYouTubeVideoUtils()
+        {
+            ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
+            if(!downloadRequests.empty())
+            {
+                ofStopURLLoader();
+                ofRemoveAllURLRequests();
+            }
+        }
+    
+        void addListener(YouTubeDownloadEventListener* listener_)
+        {
+            listener = listener_;
+        }
+    
+        void removeListener(YouTubeDownloadEventListener* listener_)
+        {
+            if(listener_ == listener)
+            {
+                listener = NULL;
+            }
+        }
+
+    private:
+        string createFileName(YouTubeVideoURL& videoURL, bool groupIntoFolder = false);
+        void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
+        void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
     
 };
 

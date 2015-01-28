@@ -61,6 +61,11 @@ public:
     string videoID;
     string title;
     string author;
+    int lengthInSeconds;
+    string smallImagePath;
+    string mediumImagePath;
+    string largeImagePath;
+    string largestImagePath;
     
     ofHttpResponse httpResponse;
     
@@ -72,17 +77,25 @@ public:
     vector <string> values;
     
     vector<YouTubeVideoURL> videoURLs;
+    vector<string> imageURLs;
     vector <int> itags;
     vector<string> urls;
     
     string API_URL;
- 
+    bool hasLoaded;
     YouTubeVideoInfo()
     {
         videoID = "";
         title = "";
         author = "";
+        smallImagePath = "";
+        mediumImagePath = "";
+        largeImagePath = "";
+        largestImagePath = "";
+        
+        lengthInSeconds = 0;
         API_URL = "http://www.youtube.com/get_video_info?&video_id=";
+        hasLoaded = false;
     };
     
     
@@ -151,6 +164,34 @@ public:
                         author = value;
                         ofStringReplace(author, "+", " ");
                     }
+                    if(key == "thumbnail_url")
+                    {
+                        smallImagePath = value;
+                        imageURLs.push_back(value);
+                    }
+                    if(key == "iurlmq")
+                    {
+                        mediumImagePath = value;
+                        imageURLs.push_back(value);
+                    }
+                    if(key == "iurlsd")
+                    {
+                        largeImagePath = value;
+                        imageURLs.push_back(value);
+                    }
+                    
+                    if(key == "iurlmaxres")
+                    {
+                        largestImagePath = value;
+                        imageURLs.push_back(value);
+                    }
+                    
+                    
+                    
+                    if(key == "length_seconds")
+                    {
+                        lengthInSeconds = ofToInt(value);
+                    }
                     
                     keys.push_back(key);
                     values.push_back(value);
@@ -160,7 +201,6 @@ public:
                 }
                 
             }
-            
             for(size_t i=0; i<urls.size(); i++)
             {
                 //ofLogVerbose(__func__) << i <<  " url: " << urls[i];
@@ -181,7 +221,7 @@ public:
         {
             ofLogError() << "COULD NOT LOAD URL \n" << url << "\n" << "httpResponse.status: " << httpResponse.status;
         }
-        
+        hasLoaded = wasSuccessful;
         return wasSuccessful;
     }
     

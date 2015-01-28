@@ -1,7 +1,5 @@
 #include "ofxYouTubeVideoUtils.h"
 
-
-
 YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 {
     ofLogVerbose() << "LOADING youTubeVideoID: " << youTubeVideoID;
@@ -15,8 +13,6 @@ void ofxYouTubeVideoUtils::printKeyValueMap(string youTubeVideoID)
 {
     infoCollection[youTubeVideoID].printKeyValueMap();
 }
-
-
 
 
 string isRedirect(string& url)
@@ -36,6 +32,7 @@ string isRedirect(string& url)
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
                                             bool groupIntoFolder) //default: false
 {
+    //TODO Pretty format option (e.g. Title + Resolution)
     stringstream name;
     name << videoURL.videoID;
     name << "_";
@@ -71,11 +68,14 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
 
     return fileName;
 }
+
+
+
 bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
                                          bool doAsync,              //default: false
                                          bool doOverwriteExisting,  //default: false
                                          bool groupIntoFolder,      //default: false
-                                         string customPath)         //default: ""
+                                         string customPath)         //default: ""  //TODO implement customPath
 {
     bool success = false;
     stringstream info;
@@ -93,15 +93,12 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
         info << "fileName: " << fileName << " EXISTS - BUT IS 0 bytes";
         doOverwriteExisting = true;
     }
-
-    
-    
     if(file.exists() && !doOverwriteExisting)
     {
         info << "fileName: " << fileName << " EXISTS - NOT OVERWRITING";
         if(listener)
         {
-            YouTubeDownloadEventData eventData((void *)this, fileName+ " EXISTS - DID NOT OVERWRITE");
+            YouTubeDownloadEventData eventData(downloadRequest, (void *)this, fileName+ " EXISTS - DID NOT OVERWRITE");
             broadcastDownloadEventComplete(eventData);
         }
         success = true;
@@ -111,11 +108,9 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
         info << "DOWNLOADING TO: " << fileName;
         info << " ASYNC: " << doAsync;
         
-        
-        
         if (doAsync)
         {
-            ofAddListener(ofURLResponseEvent(),this,&ofxYouTubeVideoUtils::urlResponse);
+            ofAddListener(ofURLResponseEvent(),this,&ofxYouTubeVideoUtils::onVideoHTTPResponse);
             
             downloadRequest.isAsync = true;
             downloadRequests.push_back(downloadRequest);
@@ -132,6 +127,7 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
             
             if(httpResponse.status == 302)
             {
+                //TODO Handle redirects
                 ofLogVerbose(__func__) << "302 !!!!!!!!!! \n response.data.getText: " << httpResponse.data.getText();
                 ofLogVerbose() << "response.request.url: \n\n\n" << httpResponse.request.url;
                 
@@ -166,6 +162,17 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
 
 }
 
+void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideoInfo& videoInfo)
+{
+    for(size_t i=0; i<videoInfo.imageURLs.size(); i++)
+    {
+        string url = videoInfo.imageURLs[i];
+        vector<string> urlPieces = ofSplitString(url, "/");
+        string filePath = ofToDataPath(videoInfo.videoID+ "_" +urlPieces.back(), true);
+        ofSaveURLTo(url, filePath); //TODO Async option? may interfere with callback for videos
+    }
+}
+
 void ofxYouTubeVideoUtils::broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData)
 {
     if(!listener) return;
@@ -177,7 +184,8 @@ void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData&
     if(!listener) return;
     listener->onYouTubeDownloadEventError(eventData);
 }
-void ofxYouTubeVideoUtils::urlResponse(ofHttpResponse& response)
+
+void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
 {
     //ofLogVerbose(__func__) << "response.request.url: " << response.request.url;
     
