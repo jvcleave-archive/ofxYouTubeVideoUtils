@@ -14,21 +14,6 @@ void ofxYouTubeVideoUtils::printKeyValueMap(string youTubeVideoID)
     infoCollection[youTubeVideoID].printKeyValueMap();
 }
 
-
-string isRedirect(string& url)
-{
-    ofHttpResponse response = ofLoadURL(url);
-    
-    if(response.status == 302)
-    {
-        ofLogVerbose(__func__) << "302 !!!!!!!!!! \n response.data.getText: " << response.data.getText();
-        ofLogVerbose() << "response.request.url: \n\n\n" << response.request.url;
-        
-        ofLogVerbose() << "url: \n\n\n" << url;
-    }
-    return url;
-}
-
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
                                             bool groupIntoFolder) //default: false
 {
@@ -127,11 +112,7 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
             
             if(httpResponse.status == 302)
             {
-                //TODO Handle redirects
-                ofLogVerbose(__func__) << "302 !!!!!!!!!! \n response.data.getText: " << httpResponse.data.getText();
-                ofLogVerbose() << "response.request.url: \n\n\n" << httpResponse.request.url;
-                
-                ofLogVerbose() << "url: \n\n\n" << videoURL.url;
+                handleRedirect(videoURL.url);
             }else
             {
                 
@@ -185,6 +166,7 @@ void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData&
     listener->onYouTubeDownloadEventError(eventData);
 }
 
+
 void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
 {
     //ofLogVerbose(__func__) << "response.request.url: " << response.request.url;
@@ -193,13 +175,21 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
     {
         if(response.request.url == downloadRequests[i].url)
         {
-            if(response.status>0 && response.status != 302)
+            if(response.status>0)
             {
-                if(listener)
+                if(response.status != 302)
                 {
-                    YouTubeDownloadEventData eventData(downloadRequests[i], response, (void *)this);
-                    broadcastDownloadEventComplete(eventData);
+                    if(listener)
+                    {
+                        YouTubeDownloadEventData eventData(downloadRequests[i], response, (void *)this);
+                        broadcastDownloadEventComplete(eventData);
+                    }
+                }else
+                {
+                    handleRedirect(response.request.url);
+
                 }
+                
             }else
             {
                 if(listener)
@@ -218,5 +208,11 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
     }
 }
 
+void ofxYouTubeVideoUtils::handleRedirect(string redirectedURL)
+{
+    //TODO - handle redirects
+    ofLogVerbose(__func__) << "got a redirect from URL: " << redirectedURL;
+
+}
 
 

@@ -66,7 +66,7 @@ class ofxYouTubeVideoUtils
         YouTubeVideoInfo loadVideoInfo(string youTubeVideoID);
         map<string, YouTubeVideoInfo> infoCollection;
         void printKeyValueMap(string youTubeVideoID);
-        YouTubeFormat formatter;
+    
 
         map<int, YouTubeFormat> formats;
 
@@ -86,6 +86,8 @@ class ofxYouTubeVideoUtils
 
         ofxYouTubeVideoUtils()
         {
+            listener = NULL;
+            YouTubeFormat formatter;
             formatter.createFormats(formats);
         }
     
@@ -116,6 +118,7 @@ class ofxYouTubeVideoUtils
         string createFileName(YouTubeVideoURL& videoURL, bool groupIntoFolder = false);
         void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
         void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
+        void handleRedirect(string redirectedURL);
     
 };
 
