@@ -3,6 +3,9 @@
 #include "YouTubeVideoInfo.h"
 #include "YouTubeFormat.h"
 
+#ifdef TARGET_OSX
+#define __func__ __FUNCTION__
+#endif
 class YouTubeDownloadRequest
 {
     public:
@@ -18,6 +21,8 @@ class YouTubeDownloadRequest
             isAsync = false;
         }
 };
+
+
 
 class YouTubeDownloadEventData
 {
@@ -36,7 +41,8 @@ class YouTubeDownloadEventData
             listener = listener_;
             message = message_;
         }
-        
+    
+        //didn't make a request - so just give a message
         YouTubeDownloadEventData(void* listener_, string message_="")
         {
             listener = listener_;
@@ -64,12 +70,11 @@ class ofxYouTubeVideoUtils
 {
     public:
         YouTubeVideoInfo loadVideoInfo(string youTubeVideoID);
-        map<string, YouTubeVideoInfo> infoCollection;
-        void printKeyValueMap(string youTubeVideoID);
-        YouTubeFormat formatter;
-
-        map<int, YouTubeFormat> formats;
-
+    
+        vector<YouTubeVideoInfo> infoCollection;
+        vector<YouTubeFormat> formatCollection;
+    
+    
         bool downloadVideo(YouTubeVideoURL videoURL,
                            bool doAsync=false,
                            bool doOverwriteExisting=false,
@@ -78,15 +83,20 @@ class ofxYouTubeVideoUtils
 
         void downloadAllImages(YouTubeVideoInfo& videoInfo);
 
-        void onVideoHTTPResponse(ofHttpResponse & response);
+    
 
         vector<YouTubeDownloadRequest> downloadRequests;
 
-        YouTubeDownloadEventListener* listener;
-
+    
+    
+        void printKeyValues(string youTubeVideoID);
+    
+    
         ofxYouTubeVideoUtils()
         {
-            formatter.createFormats(formats);
+            listener = NULL;
+            YouTubeFormat formatter;
+            formatter.createFormats(formatCollection);
         }
     
         ~ofxYouTubeVideoUtils()
@@ -111,11 +121,42 @@ class ofxYouTubeVideoUtils
                 listener = NULL;
             }
         }
-
+    
+        YouTubeFormat getFormat(int itag)
+        {
+            YouTubeFormat format;
+            for(size_t i=0; i<formatCollection.size(); i++ )
+            {
+                if(formatCollection[i].itag == itag)
+                {
+                    format = formatCollection[i];
+                    break;
+                }
+            }
+            return format;
+        }
+        void findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution)
+        {
+            for(size_t i=0; i<formatCollection.size(); i++ )
+            {
+                if(formatCollection[i].videoResolution == videoResolution)
+                {
+                    formats.push_back(formatCollection[i]);
+                }else
+                {
+                    ofLogError(__func__) << formatCollection[i].videoResolution << " IS NOT " << videoResolution;
+                }
+            }
+        }
+    
     private:
+        YouTubeDownloadEventListener* listener;
+    
         string createFileName(YouTubeVideoURL& videoURL, bool groupIntoFolder = false);
         void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
         void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
+        void handleRedirect(string redirectedURL);
+        void onVideoHTTPResponse(ofHttpResponse & response);
     
 };
 
