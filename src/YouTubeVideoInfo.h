@@ -70,9 +70,8 @@ public:
     ofHttpResponse httpResponse;
     
     vector <string> urlParams;
-    vector <string> keyNames;
     
-    map<string, string> keyValueMap;
+    
     vector <string> keys;
     vector <string> values;
     
@@ -148,7 +147,7 @@ public:
                     if(key == "itag")
                     {
                         int intTag = ofToInt(value);
-                        ofLogVerbose() << "intTag: " << intTag;
+                        ofLogVerbose(__func__) << "intTag: " << intTag;
                         itags.push_back(intTag);
                         
                     }
@@ -195,9 +194,6 @@ public:
                     
                     keys.push_back(key);
                     values.push_back(value);
-                    
-                    keyValueMap[key] = value; //will overwrite duplicate keys but may be useful
-                    keyNames.push_back(key);
                 }
                 
             }
@@ -205,13 +201,34 @@ public:
             {
                 //ofLogVerbose(__func__) << i <<  " url: " << urls[i];
                 YouTubeVideoURL youtubeVideoURL;
-                youtubeVideoURL.setup(videoID, urls[i]);
+                string redecodedURL;
+                Poco::URI::decode(urls[i], redecodedURL);
+                youtubeVideoURL.setup(videoID, redecodedURL);
                 if(youtubeVideoURL.itag != -1)
                 {
                     videoURLs.push_back(youtubeVideoURL);
                 }else
                 {
-                    ofLogVerbose() << "urls[i] REJECTED: " << urls[i];
+                    string decodedRejectedURL;
+                    Poco::URI::decode(urls[i], decodedRejectedURL);
+                    ofLogVerbose(__func__) << "urls REJECTED: " << decodedRejectedURL;
+                    
+                    vector <string> decodedRejectedURL_params = ofSplitString(decodedRejectedURL, "&");
+                    for(size_t k=0; k<decodedRejectedURL_params.size(); k++)
+                    {
+                        string& currentParam = decodedRejectedURL_params[k];
+                        vector <string> rejectkeyValues = ofSplitString(currentParam, "=");
+                        if(rejectkeyValues.size()>=2)
+                        {
+                            if(rejectkeyValues[0] == "itag")
+                            {
+                                int rejected_itag = ofToInt(rejectkeyValues[1]);
+                            }
+                            //valueMap[keyValues[0]] = keyValues[1];
+                            //valueMapNames.push_back(keyValues[0]);
+                        }
+                    }
+                    
                 }
                 
             }
@@ -225,17 +242,26 @@ public:
         return wasSuccessful;
     }
     
+    
     vector<YouTubeVideoURL> getPreferredFormats(vector<int> itags)
     {
         vector<YouTubeVideoURL> preferredURLs;
         vector<int> availableTags;
+        
+        stringstream tagLog;
+        
+        for(size_t j=0; j<itags.size(); j++)
+        {
+            tagLog << itags[j] << " ";
+        }
+        
         for(size_t i=0; i<videoURLs.size(); i++)
         {
+            availableTags.push_back(videoURLs[i].itag);
+            
             for(size_t j=0; j<itags.size(); j++)
             {
-                int currentTag = itags[j];
-                availableTags.push_back(currentTag);
-                if(videoURLs[i].itag == currentTag)
+                if(videoURLs[i].itag == itags[j])
                 {
                     preferredURLs.push_back(videoURLs[i]);
                 }
@@ -245,21 +271,21 @@ public:
         if(preferredURLs.empty())
         {
             stringstream info;
-            info << "NO PREFFERED TAGS AVAILABLE FOR " << videoID << " AVAILABLE FORMATS ARE: \n";
+            info << "NO PREFFERED TAGS " << tagLog.str() << " AVAILABLE FOR title: " << title << " id: "<< videoID << " AVAILABLE FORMATS ARE: \n";
             for(size_t i=0; i<availableTags.size(); i++)
             {
                 info << availableTags[i] << "\n";
             }
             if(availableTags.empty())
             {
-                printKeyValueMap();
+                //printKeyValueMap();
             }
-            ofLogVerbose() << info.str();
+            ofLogVerbose(__func__) << info.str();
         }
         return preferredURLs;
     }
     
-    void printKeyValueMap()
+    void printKeyValues()
     {
         stringstream ss;
         

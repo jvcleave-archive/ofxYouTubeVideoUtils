@@ -2,16 +2,23 @@
 
 YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 {
-    ofLogVerbose() << "LOADING youTubeVideoID: " << youTubeVideoID;
+    ofLogVerbose(__func__) << "LOADING youTubeVideoID: " << youTubeVideoID;
     YouTubeVideoInfo videoInfo;
     videoInfo.fetchInfo(youTubeVideoID);
-    infoCollection[youTubeVideoID] = videoInfo;
+    infoCollection.push_back(videoInfo);
     return videoInfo;
 }
 
-void ofxYouTubeVideoUtils::printKeyValueMap(string youTubeVideoID)
+void ofxYouTubeVideoUtils::printKeyValues(string videoID)
 {
-    infoCollection[youTubeVideoID].printKeyValueMap();
+    for(size_t i=0; i<infoCollection.size(); i++)
+    {
+        if(infoCollection[i].videoID == videoID)
+        {
+            infoCollection[i].printKeyValues();
+            break;
+        }
+    }
 }
 
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
@@ -23,15 +30,16 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
     name << "_";
     name << videoURL.itag;
     
-    YouTubeFormat& format = formats[videoURL.itag];
-    ofLogVerbose() << "VIDEO_RESOLUTION: " << format.videoResolution;
+    YouTubeFormat format = getFormat(videoURL.itag);
+    formatCollection[videoURL.itag];
+    ofLogVerbose(__func__) << "VIDEO_RESOLUTION: " << format.videoResolution;
     switch (format.container)
     {
         case YouTubeFormat::CONTAINER_3GP:  { name << ".3gp";   break;  }
         case YouTubeFormat::CONTAINER_FLV:  { name << ".flv";   break;  }
         case YouTubeFormat::CONTAINER_MP4:  { name << ".mp4";   break;  }
         case YouTubeFormat::CONTAINER_WEBM: { name << ".webm";  break;  }
-        case YouTubeFormat::CONTAINER_TS:   { name << ".webm";  break;  }
+        case YouTubeFormat::CONTAINER_TS:   { name << ".ts";  break;  }
         default:                            { name << ".unknownformat"; }
     }
     
@@ -49,7 +57,7 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
         fileName = ofToDataPath(name.str(), true);
     }
     
-    ofLogVerbose() << "fileName: " << fileName;
+    ofLogVerbose(__func__) << "fileName: " << fileName;
 
     return fileName;
 }
