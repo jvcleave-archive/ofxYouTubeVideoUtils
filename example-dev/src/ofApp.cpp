@@ -31,8 +31,7 @@ void ofApp::setup()
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetLogLevel("ofThread", OF_LOG_ERROR);
     youTubeUtils.addListener(this);
-    
-    
+
     videoCounter = 0;
     //videoIDs.push_back("7zD5u9yy9kg");//wat
     //videoIDs.push_back("6pxRHBw-k8M");//4k
@@ -46,7 +45,45 @@ void ofApp::setup()
     //videoIDs.push_back("iSxcOfRym-M");
    
     vector<int> selectedFormats;
-    selectedFormats.push_back(22);
+    
+    
+    for(size_t i=0; i<youTubeUtils.formatCollection.size(); i++)
+    {
+        YouTubeFormat& currentFormat = youTubeUtils.formatCollection[i];
+        
+        if(currentFormat.streamType == YouTubeFormat::STREAM_AUDIO_VIDEO &&
+           currentFormat.container == YouTubeFormat::CONTAINER_MP4 &&
+           currentFormat.videoProfile != YouTubeFormat::VIDEO_PROFILE_3D &&
+           currentFormat.videoResolution == YouTubeFormat::VIDEO_RESOLUTION_720P)
+        {
+            selectedFormats.push_back(currentFormat.itag);
+        }
+        
+    }
+    for(size_t i=0; i<selectedFormats.size(); i++)
+    {
+        ofLogVerbose() << "selectedFormats: " << selectedFormats[i];
+
+    }
+#if 0
+    vector<YouTubeFormat> testFormats;
+    //youTubeUtils.findiTagsForVideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_1080P);
+    youTubeUtils.findiTagsForVideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_720P);
+    youTubeUtils.findiTagsForVideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_720P);
+    youTubeUtils.VideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_720P);
+    
+    
+    for(size_t i=0; i<testFormats.size(); i++)
+    {
+        if (testFormats[i].container == YouTubeFormat::CONTAINER_MP4 &&
+            testFormats[i].streamType == YouTubeFormat::STREAM_AUDIO_VIDEO)
+        {
+            selectedFormats.push_back(testFormats[i].itag);
+        }
+        
+    }
+#endif
+    //selectedFormats.push_back(22);
     //selectedFormats.push_back(133);
     //selectedFormats.push_back(299);
     
