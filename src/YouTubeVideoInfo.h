@@ -1,59 +1,10 @@
 #pragma once
 #include "ofMain.h"
 #include "Poco/URI.h"
+#include "YouTubeFormatCollection.h"
+#include "YouTubeVideoURL.h"
 
-class YouTubeVideoURL
-{
-public:
-    string videoID;
-    string url;
-    int itag;
-    map<string, string> valueMap;
-    vector<string> valueMapNames;
-    
-    YouTubeVideoURL()
-    {
-        videoID = "";
-        url = "";
-        itag = -1;
-    }
-    
-    void setup(string videoID_, string url_)
-    {
-        videoID = videoID_;
-        url = url_;
-        
-        vector <string> params = ofSplitString(url, "&");
-        for(size_t i=0; i<params.size(); i++)
-        {
-            string currentParam = params[i];
-            vector <string> keyValues = ofSplitString(currentParam, "=");
-            if(keyValues.size()>=2)
-            {
-                if(keyValues[0] == "itag")
-                {
-                    itag = ofToInt(keyValues[1]);
-                }
-                valueMap[keyValues[0]] = keyValues[1];
-                valueMapNames.push_back(keyValues[0]);
-            }
-        }
-    }
-    
-    void print()
-    {
-        stringstream info;
-        info << "url: " << url << "\n";
-        info << "itag: " << itag << "\n";
-        
-        info << "valueMap key/values START \n";
-        for(size_t i=0; i<valueMapNames.size(); i++)
-        {
-            info << valueMapNames[i] << " : " << valueMap[valueMapNames[i]] << "\n";
-        }
-        ofLogVerbose(__func__) << info.str();
-    }
-};
+
 
 class YouTubeVideoInfo
 {
@@ -206,9 +157,11 @@ public:
                 youtubeVideoURL.setup(videoID, redecodedURL);
                 if(youtubeVideoURL.itag != -1)
                 {
+                    ofLogVerbose(__func__) << "youtubeVideoURL.format.itag: " << youtubeVideoURL.format.itag;
                     videoURLs.push_back(youtubeVideoURL);
                 }else
                 {
+#if 0
                     string decodedRejectedURL;
                     Poco::URI::decode(urls[i], decodedRejectedURL);
                     ofLogVerbose(__func__) << "urls REJECTED: " << decodedRejectedURL;
@@ -228,8 +181,9 @@ public:
                             //valueMapNames.push_back(keyValues[0]);
                         }
                     }
-                    
+#endif
                 }
+
                 
             }
             
@@ -242,8 +196,48 @@ public:
         return wasSuccessful;
     }
     
-    
-    vector<YouTubeVideoURL> getPreferredFormats(vector<int> itags)
+    vector<YouTubeVideoURL> getPreferredFormats(vector<YouTubeFormat>& preferredFormats)
+    {
+        vector<YouTubeVideoURL> preferredURLs;
+        vector<YouTubeFormat> availableFomats;
+        
+        for(size_t i=0; i<videoURLs.size(); i++)
+        {
+            availableFomats.push_back(videoURLs[i].format);
+            
+            
+            for(size_t j=0; j<preferredFormats.size(); j++)
+            {
+                if(videoURLs[i].format.itag == preferredFormats[j].itag)
+                {
+                    //ofLogVerbose() << "MATCH:  " << videoURLs[i].format.itag;
+                    videoURLs[i].format.print();
+                    
+                    preferredURLs.push_back(videoURLs[i]);
+                }else
+                {
+                    //ofLogVerbose(__func__) << videoURLs[i].format.itag <<  " IS NOT " << YouTubeFormatCollection::getInstance().formatCollection[j].itag;
+                }
+            }
+        }
+        
+        if(preferredURLs.empty())
+        {
+            stringstream info;
+            for(size_t i=0; i<availableFomats.size(); i++)
+            {
+                info << availableFomats[i].toString() << "\n";
+            }
+            if(availableFomats.empty())
+            {
+                //printKeyValueMap();
+            }
+            ofLogVerbose(__func__) << info.str();
+        }
+        return preferredURLs;
+    }
+
+    vector<YouTubeVideoURL> getPreferredFormats(vector<int>& itags)
     {
         vector<YouTubeVideoURL> preferredURLs;
         vector<int> availableTags;

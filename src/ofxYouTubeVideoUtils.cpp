@@ -1,5 +1,56 @@
 #include "ofxYouTubeVideoUtils.h"
 
+
+
+ofxYouTubeVideoUtils::ofxYouTubeVideoUtils()
+{
+    listener = NULL;
+    formatCollection = YouTubeFormatCollection::getInstance().getFormatCollection();
+}
+
+ofxYouTubeVideoUtils::~ofxYouTubeVideoUtils()
+{
+    ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
+    if(!downloadRequests.empty())
+    {
+        ofStopURLLoader();
+        ofRemoveAllURLRequests();
+    }
+}
+
+void ofxYouTubeVideoUtils::addListener(YouTubeDownloadEventListener* listener_)
+{
+    listener = listener_;
+}
+
+void ofxYouTubeVideoUtils::removeListener(YouTubeDownloadEventListener* listener_)
+{
+    if(listener_ == listener)
+    {
+        listener = NULL;
+    }
+}
+
+YouTubeFormat ofxYouTubeVideoUtils::getFormat(int itag)
+{
+    return YouTubeFormatCollection::getInstance().getFormatForItag(itag);
+}
+
+void ofxYouTubeVideoUtils::findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution)
+{
+    for(size_t i=0; i<formatCollection.size(); i++ )
+    {
+        if(formatCollection[i].videoResolution == videoResolution)
+        {
+            formats.push_back(formatCollection[i]);
+        }else
+        {
+           // ofLogError(__func__) << formatCollection[i].videoResolution << " IS NOT " << videoResolution;
+        }
+    }
+}
+
+
 YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 {
     ofLogVerbose(__func__) << "LOADING youTubeVideoID: " << youTubeVideoID;
@@ -9,17 +60,7 @@ YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
     return videoInfo;
 }
 
-void ofxYouTubeVideoUtils::printKeyValues(string videoID)
-{
-    for(size_t i=0; i<infoCollection.size(); i++)
-    {
-        if(infoCollection[i].videoID == videoID)
-        {
-            infoCollection[i].printKeyValues();
-            break;
-        }
-    }
-}
+
 
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
                                             bool groupIntoFolder) //default: false
@@ -30,8 +71,7 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
     name << "_";
     name << videoURL.itag;
     
-    YouTubeFormat format = getFormat(videoURL.itag);
-    formatCollection[videoURL.itag];
+    YouTubeFormat format = videoURL.format;
     ofLogVerbose(__func__) << "VIDEO_RESOLUTION: " << format.videoResolution;
     switch (format.container)
     {
@@ -223,4 +263,14 @@ void ofxYouTubeVideoUtils::handleRedirect(string redirectedURL)
 
 }
 
-
+void ofxYouTubeVideoUtils::printKeyValues(string videoID)
+{
+    for(size_t i=0; i<infoCollection.size(); i++)
+    {
+        if(infoCollection[i].videoID == videoID)
+        {
+            infoCollection[i].printKeyValues();
+            break;
+        }
+    }
+}
