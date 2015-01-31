@@ -1,7 +1,7 @@
 #pragma once
 #include "ofMain.h"
 #include "YouTubeVideoInfo.h"
-#include "YouTubeFormat.h"
+#include "YouTubeFormatCollection.h"
 
 #ifdef TARGET_OSX
 #define __func__ __FUNCTION__
@@ -74,7 +74,6 @@ class ofxYouTubeVideoUtils
         vector<YouTubeVideoInfo> infoCollection;
         vector<YouTubeFormat> formatCollection;
     
-    
         bool downloadVideo(YouTubeVideoURL videoURL,
                            bool doAsync=false,
                            bool doOverwriteExisting=false,
@@ -92,62 +91,14 @@ class ofxYouTubeVideoUtils
         void printKeyValues(string youTubeVideoID);
     
     
-        ofxYouTubeVideoUtils()
-        {
-            listener = NULL;
-            YouTubeFormat formatter;
-            formatter.createFormats(formatCollection);
-        }
+        ofxYouTubeVideoUtils();
     
-        ~ofxYouTubeVideoUtils()
-        {
-            ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
-            if(!downloadRequests.empty())
-            {
-                ofStopURLLoader();
-                ofRemoveAllURLRequests();
-            }
-        }
+        void addListener(YouTubeDownloadEventListener* listener_);
+        void removeListener(YouTubeDownloadEventListener* listener_);
+        YouTubeFormat getFormat(int itag);
+        void findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution);
     
-        void addListener(YouTubeDownloadEventListener* listener_)
-        {
-            listener = listener_;
-        }
-    
-        void removeListener(YouTubeDownloadEventListener* listener_)
-        {
-            if(listener_ == listener)
-            {
-                listener = NULL;
-            }
-        }
-    
-        YouTubeFormat getFormat(int itag)
-        {
-            YouTubeFormat format;
-            for(size_t i=0; i<formatCollection.size(); i++ )
-            {
-                if(formatCollection[i].itag == itag)
-                {
-                    format = formatCollection[i];
-                    break;
-                }
-            }
-            return format;
-        }
-        void findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution)
-        {
-            for(size_t i=0; i<formatCollection.size(); i++ )
-            {
-                if(formatCollection[i].videoResolution == videoResolution)
-                {
-                    formats.push_back(formatCollection[i]);
-                }else
-                {
-                    ofLogError(__func__) << formatCollection[i].videoResolution << " IS NOT " << videoResolution;
-                }
-            }
-        }
+        ~ofxYouTubeVideoUtils();
     
     private:
         YouTubeDownloadEventListener* listener;

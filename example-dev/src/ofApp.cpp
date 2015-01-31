@@ -44,52 +44,37 @@ void ofApp::setup()
     
     //videoIDs.push_back("iSxcOfRym-M");
    
-    vector<int> selectedFormats;
+    //youTubeUtils.setup();
     
+    vector<YouTubeFormat> selectedFormats;
     
     for(size_t i=0; i<youTubeUtils.formatCollection.size(); i++)
     {
-        YouTubeFormat& currentFormat = youTubeUtils.formatCollection[i];
+        YouTubeFormat currentFormat = youTubeUtils.formatCollection[i];
         
         if(currentFormat.streamType == YouTubeFormat::STREAM_AUDIO_VIDEO &&
            currentFormat.container == YouTubeFormat::CONTAINER_MP4 &&
            currentFormat.videoProfile != YouTubeFormat::VIDEO_PROFILE_3D &&
            currentFormat.videoResolution == YouTubeFormat::VIDEO_RESOLUTION_720P)
         {
-            selectedFormats.push_back(currentFormat.itag);
+            selectedFormats.push_back(currentFormat);            
         }
         
     }
     for(size_t i=0; i<selectedFormats.size(); i++)
     {
-        ofLogVerbose() << "selectedFormats: " << selectedFormats[i];
+        ofLogVerbose() << "selectedFormats: " << selectedFormats[i].toString();;
 
     }
-#if 0
-    vector<YouTubeFormat> testFormats;
-    //youTubeUtils.findiTagsForVideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_1080P);
-    youTubeUtils.findiTagsForVideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_720P);
-    youTubeUtils.findiTagsForVideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_720P);
-    youTubeUtils.VideoResolution(testFormats, YouTubeFormat::VIDEO_RESOLUTION_720P);
     
-    
-    for(size_t i=0; i<testFormats.size(); i++)
-    {
-        if (testFormats[i].container == YouTubeFormat::CONTAINER_MP4 &&
-            testFormats[i].streamType == YouTubeFormat::STREAM_AUDIO_VIDEO)
-        {
-            selectedFormats.push_back(testFormats[i].itag);
-        }
-        
-    }
-#endif
+    ofLogVerbose() << "selectedFormats SIZE: " << selectedFormats.size();
     //selectedFormats.push_back(22);
     //selectedFormats.push_back(133);
     //selectedFormats.push_back(299);
     
     for(size_t i=0; i<videoIDs.size(); i++)
     {
-        info << "GRABBING: " << videoIDs[i] << "\n";
+       // info << "GRABBING: " << videoIDs[i] << "\n";
         YouTubeVideoInfo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
         youTubeUtils.downloadAllImages(videoInfo);
         ofImage image;
