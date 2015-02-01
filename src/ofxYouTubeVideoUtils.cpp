@@ -263,7 +263,7 @@ void ofxYouTubeVideoUtils::handleRedirect(string redirectedURL)
 
 }
 
-void ofxYouTubeVideoUtils::printKeyValues(string videoID)
+void ofxYouTubeVideoUtils::print(string videoID)
 {
     for(size_t i=0; i<infoCollection.size(); i++)
     {

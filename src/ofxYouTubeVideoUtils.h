@@ -69,11 +69,16 @@ class YouTubeDownloadEventListener
 class ofxYouTubeVideoUtils
 {
     public:
-        YouTubeVideoInfo loadVideoInfo(string youTubeVideoID);
+    
     
         vector<YouTubeVideoInfo> infoCollection;
         vector<YouTubeFormat> formatCollection;
+        vector<YouTubeDownloadRequest> downloadRequests;
     
+        ofxYouTubeVideoUtils();
+        ~ofxYouTubeVideoUtils();
+    
+        YouTubeVideoInfo loadVideoInfo(string youTubeVideoID);
         bool downloadVideo(YouTubeVideoURL videoURL,
                            bool doAsync=false,
                            bool doOverwriteExisting=false,
@@ -82,23 +87,12 @@ class ofxYouTubeVideoUtils
 
         void downloadAllImages(YouTubeVideoInfo& videoInfo);
 
-    
-
-        vector<YouTubeDownloadRequest> downloadRequests;
-
-    
-    
-        void printKeyValues(string youTubeVideoID);
-    
-    
-        ofxYouTubeVideoUtils();
-    
-        void addListener(YouTubeDownloadEventListener* listener_);
-        void removeListener(YouTubeDownloadEventListener* listener_);
         YouTubeFormat getFormat(int itag);
         void findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution);
     
-        ~ofxYouTubeVideoUtils();
+        void addListener(YouTubeDownloadEventListener* listener_);
+        void removeListener(YouTubeDownloadEventListener* listener_);
+        void print(string youTubeVideoID);
     
     private:
         YouTubeDownloadEventListener* listener;
@@ -107,7 +101,8 @@ class ofxYouTubeVideoUtils
         void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
         void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
         void handleRedirect(string redirectedURL);
-        void onVideoHTTPResponse(ofHttpResponse & response);
+        void onVideoHTTPResponse(ofHttpResponse& response);
+    
     
 };
 

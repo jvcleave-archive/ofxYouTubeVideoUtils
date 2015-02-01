@@ -285,9 +285,11 @@ void YouTubeVideoInfo::writeToLog(string logPath)
     }
     ss << "\n META SECTION \n";
     
+    ss << "videoID:" << videoID << "\n";
     ss << "author:" << author << "\n";
     ss << "title:" << title << "\n";
-    
+    ss << "lengthInSeconds:" << lengthInSeconds << "\n";
+
     for(size_t i=0; i<itags.size(); i++)
     {
         ofLogVerbose(__func__)<< " itag : " << itags[i];

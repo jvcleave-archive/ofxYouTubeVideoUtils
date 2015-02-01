@@ -18,7 +18,6 @@ public:
     string largeImagePath;
     string largestImagePath;
     
-    ofHttpResponse httpResponse;
     
     vector <string> urlParams;
     
@@ -43,5 +42,7 @@ public:
     void print();
     string toString();
     void writeToLog(string logPath="");
-    
+private:
+    ofHttpResponse httpResponse;
+
 };
