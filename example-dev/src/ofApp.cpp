@@ -31,7 +31,10 @@ void ofApp::setup()
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetLogLevel("ofThread", OF_LOG_ERROR);
     youTubeUtils.addListener(this);
-
+    
+    
+    
+    
     videoCounter = 0;
     //videoIDs.push_back("7zD5u9yy9kg");//wat
     //videoIDs.push_back("6pxRHBw-k8M");//4k
@@ -46,7 +49,9 @@ void ofApp::setup()
     videoIDs.push_back("FsJhfwbfMvU");
     
    
-    //youTubeUtils.setup();
+    //playlist example
+    //videoIDs = youTubeUtils.getVideoIDsFromPlaylist("PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi");
+    
     
     vector<YouTubeFormat> selectedFormats;
     
@@ -54,12 +59,19 @@ void ofApp::setup()
     {
         YouTubeFormat currentFormat = youTubeUtils.formatCollection[i];
         
-        if(currentFormat.streamType == YouTubeFormat::STREAM_AUDIO_VIDEO &&
+        if(currentFormat.streamType == YouTubeFormat::STREAM_VIDEO_ONLY &&
+           currentFormat.container == YouTubeFormat::CONTAINER_MP4)
+        {
+            selectedFormats.push_back(currentFormat);
+        }
+       /*
+        if(currentFormat.streamType == YouTubeFormat::STREAM_VIDEO_ONLY &&
            currentFormat.container == YouTubeFormat::CONTAINER_MP4 &&
+           currentFormat.videoResolution == YouTubeFormat::VIDEO_RESOLUTION_480P &&
            currentFormat.videoProfile != YouTubeFormat::VIDEO_PROFILE_3D)
         {
             selectedFormats.push_back(currentFormat);            
-        }
+        }*/
         
     }
     for(size_t i=0; i<selectedFormats.size(); i++)
@@ -179,7 +191,7 @@ void ofApp::draw(){
 	
     for(size_t i=0; i<images.size(); i++)
     {
-        images[i].draw(0, 360*i, 640, 360);
+        images[i].draw(0, ofRandom(ofGetScreenHeight()), images[i].getWidth(), images[i].getHeight());
     }
     if(videoPlayer.isPlaying())
     {

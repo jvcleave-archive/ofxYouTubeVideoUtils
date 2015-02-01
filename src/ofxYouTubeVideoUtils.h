@@ -93,6 +93,7 @@ class ofxYouTubeVideoUtils
         void addListener(YouTubeDownloadEventListener* listener_);
         void removeListener(YouTubeDownloadEventListener* listener_);
         void print(string youTubeVideoID);
+        vector<string> getVideoIDsFromPlaylist(string playlistID);
     
     private:
         YouTubeDownloadEventListener* listener;

@@ -1,11 +1,53 @@
 #include "ofxYouTubeVideoUtils.h"
-
+#include "Poco/RegularExpression.h"
+using Poco::RegularExpression;
 
 
 ofxYouTubeVideoUtils::ofxYouTubeVideoUtils()
 {
     listener = NULL;
     formatCollection = YouTubeFormatCollection::getInstance().getFormatCollection();
+}
+
+vector<string> ofxYouTubeVideoUtils::getVideoIDsFromPlaylist(string playlistID)
+{
+    vector<string> videoIDs;
+    string url = "http://gdata.youtube.com/feeds/api/playlists/"+playlistID+"/?v=2";
+    
+    ofHttpResponse response = ofLoadURL(url);
+    if(response.status>0)
+    {
+        
+        RegularExpression regEx("<yt:videoid>(.+?)<\\/yt:videoid>");
+        
+        string haystack = response.data.getText();
+        
+        RegularExpression::Match match;
+        string::size_type haystackOffset = 0;
+        
+        vector<string> needles;
+        
+        while (regEx.match(haystack, haystackOffset, match))
+        {
+            haystackOffset = match.offset + match.length;
+            needles.push_back(string(haystack, match.offset, match.length));
+        }
+        
+        for (int i = 0; i < needles.size(); ++i)
+        {
+            string openingTag = "<yt:videoid>";
+            string closingTag = "</yt:videoid>";
+            needles[i].erase(0, openingTag.length());
+            int endTagPosition = needles[i].find(closingTag);
+            needles[i].erase(endTagPosition, needles[i].length());
+            videoIDs.push_back(needles[i]);
+        }
+        
+    }else
+    {
+        ofLogVerbose() << "FAIL: " << response.status;
+    }
+    return videoIDs;
 }
 
 ofxYouTubeVideoUtils::~ofxYouTubeVideoUtils()
