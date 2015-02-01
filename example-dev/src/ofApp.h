@@ -29,7 +29,7 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
         ofVideoPlayer videoPlayer;
     
         vector<string> videoPaths;
-        vector<ofImage> largeImages;
+        vector<ofImage> images;
     
         bool loadNextMovie();
     

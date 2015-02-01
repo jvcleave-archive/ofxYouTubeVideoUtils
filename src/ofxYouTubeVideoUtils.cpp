@@ -269,7 +269,7 @@ void ofxYouTubeVideoUtils::printKeyValues(string videoID)
     {
         if(infoCollection[i].videoID == videoID)
         {
-            infoCollection[i].printKeyValues();
+            infoCollection[i].print();
             break;
         }
     }

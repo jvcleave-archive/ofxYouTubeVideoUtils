@@ -15,6 +15,7 @@ public:
     {
         return formatCollection;
     };
+    
     YouTubeFormat getFormatForItag(int itag)
     {
         YouTubeFormat format;

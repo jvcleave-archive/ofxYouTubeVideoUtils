@@ -37,12 +37,14 @@ void ofApp::setup()
     //videoIDs.push_back("6pxRHBw-k8M");//4k
     
     //videoIDs.push_back("RF6cPHo_yb0");//moon
-    videoIDs.push_back("1EROmqidZQc");//mkx
+   // videoIDs.push_back("1EROmqidZQc");//mkx
     
-    videoIDs.push_back("qmfm6JzuoZQ"); //reptile
+    //videoIDs.push_back("qmfm6JzuoZQ"); //reptile
     //videoIDs.push_back("zlbXf3kg5zM");//nade
     
     //videoIDs.push_back("iSxcOfRym-M");
+    videoIDs.push_back("FsJhfwbfMvU");
+    
    
     //youTubeUtils.setup();
     
@@ -54,8 +56,7 @@ void ofApp::setup()
         
         if(currentFormat.streamType == YouTubeFormat::STREAM_AUDIO_VIDEO &&
            currentFormat.container == YouTubeFormat::CONTAINER_MP4 &&
-           currentFormat.videoProfile != YouTubeFormat::VIDEO_PROFILE_3D &&
-           currentFormat.videoResolution == YouTubeFormat::VIDEO_RESOLUTION_720P)
+           currentFormat.videoProfile != YouTubeFormat::VIDEO_PROFILE_3D)
         {
             selectedFormats.push_back(currentFormat);            
         }
@@ -63,11 +64,11 @@ void ofApp::setup()
     }
     for(size_t i=0; i<selectedFormats.size(); i++)
     {
-        ofLogVerbose() << "selectedFormats: " << selectedFormats[i].toString();;
+        ofLogVerbose(__func__) << "selectedFormats: " << selectedFormats[i].toString();;
 
     }
     
-    ofLogVerbose() << "selectedFormats SIZE: " << selectedFormats.size();
+    ofLogVerbose(__func__) << "selectedFormats SIZE: " << selectedFormats.size();
     //selectedFormats.push_back(22);
     //selectedFormats.push_back(133);
     //selectedFormats.push_back(299);
@@ -77,15 +78,22 @@ void ofApp::setup()
        // info << "GRABBING: " << videoIDs[i] << "\n";
         YouTubeVideoInfo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
         youTubeUtils.downloadAllImages(videoInfo);
-        ofImage image;
-        image.loadImage(videoInfo.largestImagePath);
-        largeImages.push_back(image);
+        
+        string largestImagePath = videoInfo.getLargestImagePathAvailable();
+        if (!largestImagePath.empty())
+        {
+            ofImage image;
+            image.loadImage(largestImagePath);
+            images.push_back(image);
+        }
+        
+        
         bool doSelectedFormats = true;
         //grab only selected formats;
         if(doSelectedFormats)
         {
             vector<YouTubeVideoURL> optimalVideoURLs = videoInfo.getPreferredFormats(selectedFormats);
-            ofLogVerbose() << "optimalVideoURLs SIZE: " << optimalVideoURLs.size();
+            ofLogVerbose(__func__) << "optimalVideoURLs SIZE: " << optimalVideoURLs.size();
             youTubeVideoURLs.insert(youTubeVideoURLs.end(), optimalVideoURLs.begin(), optimalVideoURLs.end());
         }else
         {
@@ -94,7 +102,7 @@ void ofApp::setup()
         }
     }
     
-    ofLogVerbose() << "youTubeVideoURLs SIZE: " << youTubeVideoURLs.size();
+    ofLogVerbose(__func__) << "youTubeVideoURLs SIZE: " << youTubeVideoURLs.size();
     
     
     if(youTubeVideoURLs.empty())
@@ -169,9 +177,9 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw(){
 	
-    for(size_t i=0; i<largeImages.size(); i++)
+    for(size_t i=0; i<images.size(); i++)
     {
-        largeImages[i].draw(0, 360*i, 640, 360);
+        images[i].draw(0, 360*i, 640, 360);
     }
     if(videoPlayer.isPlaying())
     {

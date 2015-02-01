@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		03E0DFC01A7C4E2B00053AEA /* YouTubeFormat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03E0DFBF1A7C4E2B00053AEA /* YouTubeFormat.cpp */; };
+		03E0DFC21A7DB50700053AEA /* YouTubeVideoURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03E0DFC11A7DB50700053AEA /* YouTubeVideoURL.cpp */; };
+		03E0DFC41A7DB58A00053AEA /* YouTubeVideoInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03E0DFC31A7DB58A00053AEA /* YouTubeVideoInfo.cpp */; };
 		B92340BD2385ACCDE8790976 /* ofxYouTubeVideoUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB0CAFA5EAF08DFC394687AC /* ofxYouTubeVideoUtils.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
@@ -62,8 +64,10 @@
 
 /* Begin PBXFileReference section */
 		03E0DFBD1A7C359900053AEA /* YouTubeFormatCollection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = YouTubeFormatCollection.h; path = ../src/YouTubeFormatCollection.h; sourceTree = "<group>"; };
-		03E0DFBE1A7C464100053AEA /* YouTubeVideoURL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YouTubeVideoURL.h; sourceTree = "<group>"; };
 		03E0DFBF1A7C4E2B00053AEA /* YouTubeFormat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = YouTubeFormat.cpp; path = ../src/YouTubeFormat.cpp; sourceTree = "<group>"; };
+		03E0DFC11A7DB50700053AEA /* YouTubeVideoURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = YouTubeVideoURL.cpp; path = ../src/YouTubeVideoURL.cpp; sourceTree = "<group>"; };
+		03E0DFC31A7DB58A00053AEA /* YouTubeVideoInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = YouTubeVideoInfo.cpp; path = ../src/YouTubeVideoInfo.cpp; sourceTree = "<group>"; };
+		03E0DFC51A7DBEC600053AEA /* YouTubeVideoURL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YouTubeVideoURL.h; path = ../src/YouTubeVideoURL.h; sourceTree = "<group>"; };
 		1D18C9A6C266362E3B076E3F /* ofxYouTubeVideoUtils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxYouTubeVideoUtils.h; path = ../../../addons/ofxYouTubeVideoUtils/src/ofxYouTubeVideoUtils.h; sourceTree = SOURCE_ROOT; };
 		30823207803FA9512F6B33E5 /* YouTubeFormat.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = YouTubeFormat.h; path = ../../../addons/ofxYouTubeVideoUtils/src/YouTubeFormat.h; sourceTree = SOURCE_ROOT; };
 		B0F6742CBC0913DFE65EA842 /* YouTubeVideoInfo.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = YouTubeVideoInfo.h; path = ../../../addons/ofxYouTubeVideoUtils/src/YouTubeVideoInfo.h; sourceTree = SOURCE_ROOT; };
@@ -133,11 +137,13 @@
 			children = (
 				BB0CAFA5EAF08DFC394687AC /* ofxYouTubeVideoUtils.cpp */,
 				1D18C9A6C266362E3B076E3F /* ofxYouTubeVideoUtils.h */,
+				B0F6742CBC0913DFE65EA842 /* YouTubeVideoInfo.h */,
+				03E0DFC31A7DB58A00053AEA /* YouTubeVideoInfo.cpp */,
+				03E0DFC51A7DBEC600053AEA /* YouTubeVideoURL.h */,
+				03E0DFC11A7DB50700053AEA /* YouTubeVideoURL.cpp */,
 				30823207803FA9512F6B33E5 /* YouTubeFormat.h */,
 				03E0DFBF1A7C4E2B00053AEA /* YouTubeFormat.cpp */,
-				B0F6742CBC0913DFE65EA842 /* YouTubeVideoInfo.h */,
 				03E0DFBD1A7C359900053AEA /* YouTubeFormatCollection.h */,
-				03E0DFBE1A7C464100053AEA /* YouTubeVideoURL.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -319,6 +325,8 @@
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				B92340BD2385ACCDE8790976 /* ofxYouTubeVideoUtils.cpp in Sources */,
+				03E0DFC21A7DB50700053AEA /* YouTubeVideoURL.cpp in Sources */,
+				03E0DFC41A7DB58A00053AEA /* YouTubeVideoInfo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

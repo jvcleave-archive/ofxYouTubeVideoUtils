@@ -38,6 +38,7 @@ void YouTubeFormat::print()
 {
     ofLogVerbose(__func__) << "\n" << toString();
 }
+
 string YouTubeFormat::toString()
 {
     stringstream info;
@@ -45,23 +46,23 @@ string YouTubeFormat::toString()
     
     switch (streamType)
     {
-        case STREAM_AUDIO_VIDEO: {info << "STREAM_AUDIO_VIDEO" << "\n";} break;
-        case STREAM_VIDEO_ONLY: {info << "STREAM_VIDEO_ONLY" << "\n";} break;
-        case STREAM_AUDIO_ONLY: {info << "STREAM_AUDIO_ONLY" << "\n";} break;
-        case STREAM_LIVE:       {info << "STREAM_LIVE" << "\n";} break;
-        case STREAM_NOT_SET:    {info << "STREAM_NOT_SET" << "\n";} break;
-        default: {info << "UNKNOWN streamType " << "\n";} break;
+        case STREAM_AUDIO_VIDEO:            {info << "STREAM_AUDIO_VIDEO" << "\n";}         break;
+        case STREAM_VIDEO_ONLY:             {info << "STREAM_VIDEO_ONLY" << "\n";}          break;
+        case STREAM_AUDIO_ONLY:             {info << "STREAM_AUDIO_ONLY" << "\n";}          break;
+        case STREAM_LIVE:                   {info << "STREAM_LIVE" << "\n";}                break;
+        case STREAM_NOT_SET:                {info << "STREAM_NOT_SET" << "\n";}             break;
+        default:                            {info << "UNKNOWN streamType " << "\n";}        break;
     }
     
     switch (container)
     {
-        case CONTAINER_NOT_SET: {info << "CONTAINER_NOT_SET" << "\n";}  break;
-        case CONTAINER_FLV:     {info << "CONTAINER_FLV" << "\n";}      break;
-        case CONTAINER_3GP:     {info << "CONTAINER_3GP" << "\n";}      break;
-        case CONTAINER_MP4:     {info << "CONTAINER_MP4" << "\n";}      break;
-        case CONTAINER_WEBM:    {info << "CONTAINER_WEBM" << "\n";}     break;
-        case CONTAINER_TS:      {info << "CONTAINER_TS" << "\n";}       break;
-        default:                {info << "UNKNOWN container " << "\n";} break;
+        case CONTAINER_NOT_SET:             {info << "CONTAINER_NOT_SET" << "\n";}          break;
+        case CONTAINER_FLV:                 {info << "CONTAINER_FLV" << "\n";}              break;
+        case CONTAINER_3GP:                 {info << "CONTAINER_3GP" << "\n";}              break;
+        case CONTAINER_MP4:                 {info << "CONTAINER_MP4" << "\n";}              break;
+        case CONTAINER_WEBM:                {info << "CONTAINER_WEBM" << "\n";}             break;
+        case CONTAINER_TS:                  {info << "CONTAINER_TS" << "\n";}               break;
+        default:                            {info << "UNKNOWN container " << "\n";}         break;
     }
     
     switch (videoResolution)
@@ -81,37 +82,37 @@ string YouTubeFormat::toString()
         case VIDEO_RESOLUTION_3072P:        {info << "VIDEO_RESOLUTION_3072P" << "\n";}     break;
         case VIDEO_RESOLUTION_72P:          {info << "VIDEO_RESOLUTION_72P" << "\n";}       break;
             
-        default: {info << "UNKNOWN videoResolution " << "\n";} break;
+        default:                            {info << "UNKNOWN videoResolution " << "\n";}   break;
     }
     
     switch (videoEncoding)
     {
-        case VIDEO_ENCODING_NOT_SET: {info << "VIDEO_ENCODING_NOT_SET" << "\n";}  break;
-        case VIDEO_ENCODING_H263:     {info << "VIDEO_ENCODING_H263" << "\n";}      break;
-        case VIDEO_ENCODING_MPEG4:     {info << "VIDEO_ENCODING_MPEG4" << "\n";}      break;
-        case VIDEO_ENCODING_H264:     {info << "VIDEO_ENCODING_H264" << "\n";}      break;
-        case VIDEO_ENCODING_VP8:    {info << "VIDEO_ENCODING_VP8" << "\n";}     break;
-        case VIDEO_ENCODING_VP9:      {info << "VIDEO_ENCODING_VP9" << "\n";}       break;
-        default:                {info << "UNKNOWN videoEncoding " << "\n";} break;
+        case VIDEO_ENCODING_NOT_SET:        {info << "VIDEO_ENCODING_NOT_SET" << "\n";}     break;
+        case VIDEO_ENCODING_H263:           {info << "VIDEO_ENCODING_H263" << "\n";}        break;
+        case VIDEO_ENCODING_MPEG4:          {info << "VIDEO_ENCODING_MPEG4" << "\n";}       break;
+        case VIDEO_ENCODING_H264:           {info << "VIDEO_ENCODING_H264" << "\n";}        break;
+        case VIDEO_ENCODING_VP8:            {info << "VIDEO_ENCODING_VP8" << "\n";}         break;
+        case VIDEO_ENCODING_VP9:            {info << "VIDEO_ENCODING_VP9" << "\n";}         break;
+        default:                            {info << "UNKNOWN videoEncoding " << "\n";}     break;
     }
     
     switch (videoProfile)
     {
-        case VIDEO_PROFILE_NOT_SET: {info << "VIDEO_PROFILE_NOT_SET" << "\n";}  break;
-        case VIDEO_PROFILE_SIMPLE:     {info << "VIDEO_PROFILE_SIMPLE" << "\n";}      break;
-        case VIDEO_PROFILE_BASELINE:     {info << "VIDEO_PROFILE_BASELINE" << "\n";}      break;
-        case VIDEO_PROFILE_HIGH:     {info << "VIDEO_PROFILE_HIGH" << "\n";}      break;
-        case VIDEO_PROFILE_MAIN:    {info << "VIDEO_PROFILE_MAIN" << "\n";}     break;
-        case VIDEO_PROFILE_3D:      {info << "VIDEO_PROFILE_3D" << "\n";}       break;
-        default:                {info << "UNKNOWN videoProfile " << "\n";} break;
+        case VIDEO_PROFILE_NOT_SET:         {info << "VIDEO_PROFILE_NOT_SET" << "\n";}      break;
+        case VIDEO_PROFILE_SIMPLE:          {info << "VIDEO_PROFILE_SIMPLE" << "\n";}       break;
+        case VIDEO_PROFILE_BASELINE:        {info << "VIDEO_PROFILE_BASELINE" << "\n";}     break;
+        case VIDEO_PROFILE_HIGH:            {info << "VIDEO_PROFILE_HIGH" << "\n";}         break;
+        case VIDEO_PROFILE_MAIN:            {info << "VIDEO_PROFILE_MAIN" << "\n";}         break;
+        case VIDEO_PROFILE_3D:              {info << "VIDEO_PROFILE_3D" << "\n";}           break;
+        default:                            {info << "UNKNOWN videoProfile " << "\n";}      break;
     }
     
     switch (audioEncoding)
     {
-        case AUDIO_ENCODING_NOT_SET: {info << "AUDIO_ENCODING_NOT_SET" << "\n";}  break;
-        case AUDIO_ENCODING_MP3:     {info << "AUDIO_ENCODING_MP3" << "\n";}      break;
-        case AUDIO_ENCODING_AAC:     {info << "AUDIO_ENCODING_AAC" << "\n";}      break;
-        case AUDIO_ENCODING_VORBIS:     {info << "AUDIO_ENCODING_VORBIS" << "\n";}      break;
+        case AUDIO_ENCODING_NOT_SET:        {info << "AUDIO_ENCODING_NOT_SET" << "\n";}     break;
+        case AUDIO_ENCODING_MP3:            {info << "AUDIO_ENCODING_MP3" << "\n";}         break;
+        case AUDIO_ENCODING_AAC:            {info << "AUDIO_ENCODING_AAC" << "\n";}         break;
+        case AUDIO_ENCODING_VORBIS:         {info << "AUDIO_ENCODING_VORBIS" << "\n";}      break;
     }
     
     return info.str();
