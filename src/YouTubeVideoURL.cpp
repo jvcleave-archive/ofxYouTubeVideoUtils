@@ -1,18 +1,22 @@
 #include "YouTubeVideoURL.h"
+#include "Poco/URI.h"
 
 YouTubeVideoURL::YouTubeVideoURL()
 {
     videoID = "";
     url = "";
     itag = -1;
+    didTryDecodeAgain = false;
+    triedLastTime = false;
 }
 
-void YouTubeVideoURL::setup(string videoID_, string url_)
+bool YouTubeVideoURL::setup(string videoID_, string url_, string delimiter)
 {
+    bool success = false;
     videoID = videoID_;
     url = url_;
     
-    vector <string> params = ofSplitString(url, "&");
+    vector <string> params = ofSplitString(url, delimiter);
     for(size_t i=0; i<params.size(); i++)
     {
         string currentParam = params[i];
@@ -22,15 +26,42 @@ void YouTubeVideoURL::setup(string videoID_, string url_)
             if(keyValues[0] == "itag")
             {
                 itag = ofToInt(keyValues[1]);
-                if(itag !=-1)
-                {
-                    format = YouTubeFormatCollection::getInstance().getFormatForItag(itag);
-                }
+                
             }
             valueMap[keyValues[0]] = keyValues[1];
             valueMapNames.push_back(keyValues[0]);
         }
     }
+    
+    if(itag != -1)
+    {
+        format = YouTubeFormatCollection::getInstance().getFormatForItag(itag);
+        success = true;
+    }else
+    {
+        if(!didTryDecodeAgain)
+        {
+            didTryDecodeAgain = true;
+            ofLogVerbose(__func__) << "itag error?";
+            string decodedRejectedURL;
+            Poco::URI::decode(url_, decodedRejectedURL);
+            success = setup(videoID, decodedRejectedURL);
+        }
+        if(!success && !triedLastTime)
+        {
+            triedLastTime= true;
+            success = setup(videoID, url, "?");
+            if(!success)
+            {
+                ofLogVerbose() << "WTF";
+            }else
+            {
+                ofLogVerbose() << "LAST DITCH EFFORT WORKED WITH url: " << url;
+            }
+        }
+        
+    }
+        return success;
 }
 
 void YouTubeVideoURL::print()

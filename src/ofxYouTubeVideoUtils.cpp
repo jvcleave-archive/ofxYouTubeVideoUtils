@@ -97,8 +97,16 @@ YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 {
     ofLogVerbose(__func__) << "LOADING youTubeVideoID: " << youTubeVideoID;
     YouTubeVideoInfo videoInfo;
-    videoInfo.fetchInfo(youTubeVideoID);
-    infoCollection.push_back(videoInfo);
+    bool didLoad = videoInfo.fetchInfo(youTubeVideoID);
+
+    if(!didLoad || videoInfo.isAvailable == false)
+    {
+        failedCollection.push_back(videoInfo);
+    }else
+    {
+        infoCollection.push_back(videoInfo);
+    }
+    
     return videoInfo;
 }
 
@@ -200,9 +208,10 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
             ofHttpResponse httpResponse = ofSaveURLTo(videoURL.url, fileName);
             info << " response: " << httpResponse.status;
             
-            if(httpResponse.status == 302)
+            if(httpResponse.status > 200)
             {
-                handleRedirect(videoURL.url);
+                ofLogVerbose() << "httpResponse.status: " << httpResponse.status;
+                handleRedirect(httpResponse);
             }else
             {
                 
@@ -267,8 +276,13 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
         {
             if(response.status>0)
             {
-                if(response.status != 302)
+                if(response.status >= 200)
                 {
+                    if(response.status == 302)
+                    {
+                        ofLogVerbose(__func__) << "302 :////////////////// " << response.status;
+                        handleRedirect(response);
+                    }
                     if(listener)
                     {
                         YouTubeDownloadEventData eventData(downloadRequests[i], response, (void *)this);
@@ -276,7 +290,8 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                     }
                 }else
                 {
-                    handleRedirect(response.request.url);
+                    ofLogVerbose(__func__) << response.status;
+                    handleRedirect(response);
 
                 }
                 
@@ -297,11 +312,95 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
         ofLogVerbose(__func__) << "ALL DOWNLOADS COMPLETE";
     }
 }
+#include "Poco/Net/HTTPSession.h"
+#include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/HTTPSClientSession.h"
+#include "Poco/Net/HTTPRequest.h"
+#include "Poco/Net/HTTPResponse.h"
+#include "Poco/StreamCopier.h"
+#include "Poco/Path.h"
+#include "Poco/URI.h"
+#include "Poco/Exception.h"
+#include "Poco/URIStreamOpener.h"
+#include "Poco/Net/HTTPStreamFactory.h"
+#include "Poco/Net/HTTPSStreamFactory.h"
+#include "Poco/Net/SSLManager.h"
+#include "Poco/Net/KeyConsoleHandler.h"
+#include "Poco/Net/ConsoleCertificateHandler.h"
 
-void ofxYouTubeVideoUtils::handleRedirect(string redirectedURL)
+using namespace Poco::Net;
+
+using namespace Poco;
+ofHttpResponse ofxYouTubeVideoUtils::handleRedirect(ofHttpResponse httpResponse)
 {
-    //TODO - handle redirects
-    ofLogVerbose(__func__) << "got a redirect from URL: " << redirectedURL;
+    
+    ofLogVerbose(__func__) << "response.request.url", httpResponse.request.url;
+    
+    //TODO values stripped so copy
+    ofHttpRequest request = httpResponse.request;
+    ofHttpResponse result;
+        try {
+            URI uri(request.url);
+            std::string path(uri.getPathAndQuery());
+            if (path.empty()) path = "/";
+            
+            Poco::Net::HTTPRequest req(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
+            HTTPResponse res;
+            ofPtr<HTTPSession> session;
+            istream * rs;
+            if(uri.getScheme()=="https"){
+                //const Poco::Net::Context::Ptr context( new Poco::Net::Context( Poco::Net::Context::CLIENT_USE, "", "", "rootcert.pem" ) );
+                HTTPSClientSession * httpsSession = new HTTPSClientSession(uri.getHost(), uri.getPort());//,context);
+                httpsSession->setTimeout(Poco::Timespan(20,0));
+                httpsSession->sendRequest(req);
+                rs = &httpsSession->receiveResponse(res);
+                session = ofPtr<HTTPSession>(httpsSession);
+            }else{
+                HTTPClientSession * httpSession = new HTTPClientSession(uri.getHost(), uri.getPort());
+                httpSession->setTimeout(Poco::Timespan(20,0));
+                httpSession->sendRequest(req);
+                rs = &httpSession->receiveResponse(res);
+                session = ofPtr<HTTPSession>(httpSession);
+            }
+            if(!request.saveTo){
+                result = ofHttpResponse(request,*rs,res.getStatus(),res.getReason());
+            }else{
+                ofFile saveTo(request.name,ofFile::WriteOnly,true);
+                char aux_buffer[1024];
+                rs->read(aux_buffer, 1024);
+                std::streamsize n = rs->gcount();
+                while (n > 0){
+                    // we resize to size+1 initialized to 0 to have a 0 at the end for strings
+                    saveTo.write(aux_buffer,n);
+                    if (rs->good()){
+                        rs->read(aux_buffer, 1024);
+                        n = rs->gcount();
+                    }
+                    else n = 0;
+                }
+                result = ofHttpResponse(request,res.getStatus(),res.getReason());
+            }
+            
+        } catch (const Exception& exc) {
+            ofLogError(__func__) << "handleRequest(): "+ exc.displayText();
+            
+            result = ofHttpResponse(request,-1,exc.displayText());
+            
+        } catch (...) {
+            result = ofHttpResponse(request,-1,"ofURLFileLoader: fatal error, couldn't catch Exception");
+        }
+        
+        result = ofHttpResponse(request,-1,"ofURLFileLoader: fatal error, couldn't catch Exception");
+    
+    if(result.status == 302)
+    {
+        ofLogVerbose() << "302 AGAIN: " << result.status;
+    }else
+    {
+        ofLogVerbose() << "FINE: " << result.status;
+    }
+    return result;
+    
 
 }
 

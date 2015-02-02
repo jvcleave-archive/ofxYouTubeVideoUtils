@@ -95,5 +95,15 @@ public:
     
     void print();
     string toString();
+    
+    static string streamTypeToString(STREAM);
+    static string containerToString(CONTAINER);
+    static string videoResolutionToString(VIDEO_RESOLUTION);
+    static string videoEncodingToString(VIDEO_ENCODING);
+    static string videoProfileToString(VIDEO_PROFILE);
+    static string audioEncodingToString(AUDIO_ENCODING);
+
+    
+
 };
 

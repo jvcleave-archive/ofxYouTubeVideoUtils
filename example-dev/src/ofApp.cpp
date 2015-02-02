@@ -5,7 +5,7 @@
 void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
 {
     ofLogVerbose(__func__) << "COMPLETED";
-    info <<"\nCOMPLETED\n" <<	"url: "		<< e.downloadRequest.url;
+    info <<"\nCOMPLETED\n";
     info <<"\n" <<	"videoID: " << e.downloadRequest.videoID;
     info <<"\n" <<	"filePath: "		<< e.downloadRequest.filePath;
     videoPaths.push_back(e.downloadRequest.filePath);
@@ -50,11 +50,17 @@ void ofApp::setup()
     
    
     //playlist example
-    //videoIDs = youTubeUtils.getVideoIDsFromPlaylist("PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi");
+    string test_list = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
+    string fiona = "PLW1HSnzWuArU2F69dTC0L5e-nfMxy6Ye_";
+    string batForLashesLive = "PLW1HSnzWuArXxme7nYWxrSXGl3KClGvf9";
+    string twosuns = "PL3084674E44155D9C";
+    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(test_list);
+    
+    ofLogVerbose(__func__) << videoIDs.size() << " VIDEO IDS FOUND";
     
     
     vector<YouTubeFormat> selectedFormats;
-    
+    /*
     for(size_t i=0; i<youTubeUtils.formatCollection.size(); i++)
     {
         YouTubeFormat currentFormat = youTubeUtils.formatCollection[i];
@@ -62,75 +68,92 @@ void ofApp::setup()
         if(currentFormat.streamType == YouTubeFormat::STREAM_VIDEO_ONLY &&
            currentFormat.container == YouTubeFormat::CONTAINER_MP4)
         {
-            selectedFormats.push_back(currentFormat);
+           // selectedFormats.push_back(currentFormat);
         }
-       /*
+       
         if(currentFormat.streamType == YouTubeFormat::STREAM_VIDEO_ONLY &&
            currentFormat.container == YouTubeFormat::CONTAINER_MP4 &&
            currentFormat.videoResolution == YouTubeFormat::VIDEO_RESOLUTION_480P &&
            currentFormat.videoProfile != YouTubeFormat::VIDEO_PROFILE_3D)
         {
             selectedFormats.push_back(currentFormat);            
-        }*/
+        }
         
     }
     for(size_t i=0; i<selectedFormats.size(); i++)
     {
-        ofLogVerbose(__func__) << "selectedFormats: " << selectedFormats[i].toString();;
+        ofLogVerbose(__func__) << "selectedFormats: " << selectedFormats[i].toString();
 
     }
     
-    ofLogVerbose(__func__) << "selectedFormats SIZE: " << selectedFormats.size();
+    ofLogVerbose(__func__) << "selectedFormats SIZE: " << selectedFormats.size();*/
     //selectedFormats.push_back(22);
     //selectedFormats.push_back(133);
     //selectedFormats.push_back(299);
+    
     
     for(size_t i=0; i<videoIDs.size(); i++)
     {
        // info << "GRABBING: " << videoIDs[i] << "\n";
         YouTubeVideoInfo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
-        youTubeUtils.downloadAllImages(videoInfo);
-        
-        string largestImagePath = videoInfo.getLargestImagePathAvailable();
-        if (!largestImagePath.empty())
+        if(videoInfo.isAvailable)
         {
-            ofImage image;
-            image.loadImage(largestImagePath);
-            images.push_back(image);
-        }
-        
-        
-        bool doSelectedFormats = true;
-        //grab only selected formats;
-        if(doSelectedFormats)
-        {
-            vector<YouTubeVideoURL> optimalVideoURLs = videoInfo.getPreferredFormats(selectedFormats);
-            ofLogVerbose(__func__) << "optimalVideoURLs SIZE: " << optimalVideoURLs.size();
-            youTubeVideoURLs.insert(youTubeVideoURLs.end(), optimalVideoURLs.begin(), optimalVideoURLs.end());
+            youTubeUtils.downloadAllImages(videoInfo);
+            //TODO - show youTubeUtils infoCollection example
+            
+            
+            string largestImagePath = videoInfo.getLargestImagePathAvailable();
+            if (!largestImagePath.empty())
+            {
+                ofImage image;
+                bool didLoadImage = image.loadImage(largestImagePath);
+                if(didLoadImage)
+                {
+                   images.push_back(image);
+                }
+            }
+            
+            
+            bool doSelectedFormats = true;
+            
+            //grab only selected formats;
+            if(doSelectedFormats)
+            {
+                
+                YouTubeFormat largestFormat = videoInfo.getFormatForLargestResolutionForStreamTypeAndContainer(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
+                selectedFormats.clear(); //TODO WATCH (getPreferredFormats takes a vector for now but don't want multiple values )
+                selectedFormats.push_back(largestFormat);
+                
+                
+                vector<YouTubeVideoURL> optimalVideoURLs = videoInfo.getPreferredFormats(selectedFormats);
+                ofLogVerbose(__func__) << "optimalVideoURLs SIZE: " << optimalVideoURLs.size();
+                youTubeVideoURLs.insert(youTubeVideoURLs.end(), optimalVideoURLs.begin(), optimalVideoURLs.end());
+            }else
+            {
+                //grab them all
+                youTubeVideoURLs.insert(youTubeVideoURLs.end(), videoInfo.videoURLs.begin(), videoInfo.videoURLs.end());
+            }
         }else
         {
-            //grab them all
-            youTubeVideoURLs.insert(youTubeVideoURLs.end(), videoInfo.videoURLs.begin(), videoInfo.videoURLs.end());
+            ofLogError(__func__) << videoIDs[i] << "IS UNAVAILABLE reason: " << videoInfo.failReason;
+            //videoIDs.erase(videoIDs.begin()+i);
         }
     }
-    
-    ofLogVerbose(__func__) << "youTubeVideoURLs SIZE: " << youTubeVideoURLs.size();
-    
     
     if(youTubeVideoURLs.empty())
     {
         info << "NO MOVIES AVAILABLE" << "\n";
     }else
     {
-        for(size_t i=0; i<youTubeVideoURLs.size(); i++)
+        for(int i=0; i<youTubeVideoURLs.size(); i++)
         {
             bool doAsync                =   true;   //default: false
             bool doOverwriteExisting    =   false;  //default: false
             bool groupIntoFolder        =   true;   //default: false
             string customPath           =   "";     //default: ""
-            info << "STARTING videoID: " << youTubeVideoURLs[i].videoID << "\n";
-            info << "doOverwriteExisting: " << doOverwriteExisting << "\n";
-            info << "groupIntoFolder: "     << groupIntoFolder << "\n";
+            info << "\n" << "STARTING videoID: " << youTubeVideoURLs[i].videoID ;
+            info << "\n" << "doOverwriteExisting: " << doOverwriteExisting;
+            info << "\n" << "groupIntoFolder: "     << groupIntoFolder;
             youTubeUtils.downloadVideo(youTubeVideoURLs[i], doAsync, doOverwriteExisting, groupIntoFolder, customPath);
         }
         
@@ -189,14 +212,16 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw(){
 	
-    for(size_t i=0; i<images.size(); i++)
-    {
-        images[i].draw(0, ofRandom(ofGetScreenHeight()), images[i].getWidth(), images[i].getHeight());
-    }
     if(videoPlayer.isPlaying())
     {
-        videoPlayer.draw(640, 0, videoPlayer.getWidth()/2, videoPlayer.getHeight()/2);
+        videoPlayer.draw(0, 0, ofGetWidth(), ofGetHeight());
     }
+    
+    for(size_t i=0; i<images.size(); i++)
+    {
+        images[i].draw(0, ofRandom(ofGetHeight()), images[i].getWidth(), images[i].getHeight());
+    }
+    
 
 	ofDrawBitmapStringHighlight(info.str(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
 }

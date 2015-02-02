@@ -13,6 +13,8 @@ public:
     vector<string> valueMapNames;
     
     YouTubeVideoURL();
-    void setup(string videoID_, string url_);
+    bool setup(string videoID_, string url_, string delimiter="&");
+    bool didTryDecodeAgain;
+    bool triedLastTime;
     void print();
 };

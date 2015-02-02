@@ -4,7 +4,7 @@
 #include "YouTubeFormatCollection.h"
 
 #ifdef TARGET_OSX
-#define __func__ __FUNCTION__
+#define __func__ __PRETTY_FUNCTION__
 #endif
 class YouTubeDownloadRequest
 {
@@ -21,8 +21,6 @@ class YouTubeDownloadRequest
             isAsync = false;
         }
 };
-
-
 
 class YouTubeDownloadEventData
 {
@@ -72,6 +70,8 @@ class ofxYouTubeVideoUtils
     
     
         vector<YouTubeVideoInfo> infoCollection;
+        vector<YouTubeVideoInfo> failedCollection;
+    
         vector<YouTubeFormat> formatCollection;
         vector<YouTubeDownloadRequest> downloadRequests;
     
@@ -88,7 +88,8 @@ class ofxYouTubeVideoUtils
         void downloadAllImages(YouTubeVideoInfo& videoInfo);
 
         YouTubeFormat getFormat(int itag);
-        void findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution);
+        void findiTagsForVideoResolution(vector<YouTubeFormat>& formats,
+                                         YouTubeFormat::VIDEO_RESOLUTION videoResolution);
     
         void addListener(YouTubeDownloadEventListener* listener_);
         void removeListener(YouTubeDownloadEventListener* listener_);
@@ -98,10 +99,12 @@ class ofxYouTubeVideoUtils
     private:
         YouTubeDownloadEventListener* listener;
     
-        string createFileName(YouTubeVideoURL& videoURL, bool groupIntoFolder = false);
+        string createFileName(YouTubeVideoURL& videoURL,
+                              bool groupIntoFolder = false);
         void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
         void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
-        void handleRedirect(string redirectedURL);
+    
+        ofHttpResponse handleRedirect(ofHttpResponse httpResponse);
         void onVideoHTTPResponse(ofHttpResponse& response);
     
     
