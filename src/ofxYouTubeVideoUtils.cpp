@@ -111,9 +111,9 @@ YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 }
 
 
+bool ofxYouTubeVideoUtils::groupIntoFolder = false;
 
-string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
-                                            bool groupIntoFolder) //default: false
+string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default: false
 {
     //TODO Pretty format option (e.g. Title + Resolution)
     stringstream name;
@@ -157,17 +157,23 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL,
 bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
                                          bool doAsync,              //default: false
                                          bool doOverwriteExisting,  //default: false
-                                         bool groupIntoFolder,      //default: false
                                          string customPath)         //default: ""  //TODO implement customPath
 {
     bool success = false;
     stringstream info;
     
-    string fileName = createFileName(videoURL, groupIntoFolder);
+    string fileName;
     
+    if(customPath.empty())
+    {
+        fileName = createFileName(videoURL);
+    }else{
+        fileName = customPath;
+    }
     ofFile file(fileName);
     
     YouTubeDownloadRequest downloadRequest;
+    downloadRequest.videoURL = videoURL; //TODO - better way - packing in for redirects
     downloadRequest.url = videoURL.url;
     downloadRequest.videoID = videoURL.videoID;
     downloadRequest.filePath = fileName;
@@ -211,7 +217,7 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
             if(httpResponse.status > 200)
             {
                 ofLogVerbose() << "httpResponse.status: " << httpResponse.status;
-                handleRedirect(httpResponse);
+                //handleRedirect(httpResponse);
             }else
             {
                 
@@ -281,7 +287,7 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                     if(response.status == 302)
                     {
                         ofLogVerbose(__func__) << "302 :////////////////// " << response.status;
-                        handleRedirect(response);
+                        handleRedirect(downloadRequests[i], response.request.url, response.request.name);
                     }
                     if(listener)
                     {
@@ -291,7 +297,7 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                 }else
                 {
                     ofLogVerbose(__func__) << response.status;
-                    handleRedirect(response);
+                    //handleRedirect(response);
 
                 }
                 
@@ -305,6 +311,8 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                 }
             }
             downloadRequests.erase(downloadRequests.begin() + i);
+            
+            
         }
     }
     if (downloadRequests.empty())
@@ -312,6 +320,41 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
         ofLogVerbose(__func__) << "ALL DOWNLOADS COMPLETE";
     }
 }
+
+void ofxYouTubeVideoUtils::handleRedirect(YouTubeDownloadRequest downloadRequest, string redirectedURL, string filePath)
+{
+    //try async
+    
+    downloadVideo(downloadRequest.videoURL, false, true, filePath);
+    
+}
+
+
+
+
+void ofxYouTubeVideoUtils::print(string videoID)
+{
+    for(size_t i=0; i<infoCollection.size(); i++)
+    {
+        if(infoCollection[i].videoID == videoID)
+        {
+            infoCollection[i].print();
+            break;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 #include "Poco/Net/HTTPSession.h"
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPSClientSession.h"
@@ -331,12 +374,12 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
 using namespace Poco::Net;
 
 using namespace Poco;
-ofHttpResponse ofxYouTubeVideoUtils::handleRedirect(ofHttpResponse httpResponse)
+void ofxYouTubeVideoUtils::handleRedirect(string redirectedURL, string filePath)
 {
+   
+
+    ofLogVerbose(__func__) << "redirectedURL" << redirectedURL;
     
-    ofLogVerbose(__func__) << "response.request.url", httpResponse.request.url;
-    
-    //TODO values stripped so copy
     ofHttpRequest request = httpResponse.request;
     ofHttpResponse result;
         try {
@@ -403,15 +446,5 @@ ofHttpResponse ofxYouTubeVideoUtils::handleRedirect(ofHttpResponse httpResponse)
     
 
 }
+#endif
 
-void ofxYouTubeVideoUtils::print(string videoID)
-{
-    for(size_t i=0; i<infoCollection.size(); i++)
-    {
-        if(infoCollection[i].videoID == videoID)
-        {
-            infoCollection[i].print();
-            break;
-        }
-    }
-}

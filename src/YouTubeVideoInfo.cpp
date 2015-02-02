@@ -183,7 +183,7 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
                 ofLogError(__func__) << videoID <<" URL FAILED: url" << youtubeVideoURL.url;
             }
         }
-        if(videoURLs.empty())
+        if(videoURLs.empty() && failReason.empty())
         {
             ofLogVerbose() << "EMPTY VIDEO URLS";
             if(!fallback_hosts.empty())
@@ -201,8 +201,11 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
                 }*/
                 
             }
+        }else
+        {
+            wasSuccessful = true;
         }
-        wasSuccessful = true;
+        
     }else
     {
         ofLogError() << "COULD NOT LOAD URL \n" << url << "\n" << "httpResponse.status: " << httpResponse.status;

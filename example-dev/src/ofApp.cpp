@@ -149,12 +149,11 @@ void ofApp::setup()
         {
             bool doAsync                =   true;   //default: false
             bool doOverwriteExisting    =   false;  //default: false
-            bool groupIntoFolder        =   true;   //default: false
+            ofxYouTubeVideoUtils::groupIntoFolder =   true;   //default: false
             string customPath           =   "";     //default: ""
             info << "\n" << "STARTING videoID: " << youTubeVideoURLs[i].videoID ;
             info << "\n" << "doOverwriteExisting: " << doOverwriteExisting;
-            info << "\n" << "groupIntoFolder: "     << groupIntoFolder;
-            youTubeUtils.downloadVideo(youTubeVideoURLs[i], doAsync, doOverwriteExisting, groupIntoFolder, customPath);
+            youTubeUtils.downloadVideo(youTubeVideoURLs[i], doAsync, doOverwriteExisting, customPath);
         }
         
     }

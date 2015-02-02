@@ -13,6 +13,7 @@ class YouTubeDownloadRequest
         string videoID;
         string filePath;
         bool isAsync;
+        YouTubeVideoURL videoURL;
         YouTubeDownloadRequest()
         {
             url="";
@@ -82,7 +83,6 @@ class ofxYouTubeVideoUtils
         bool downloadVideo(YouTubeVideoURL videoURL,
                            bool doAsync=false,
                            bool doOverwriteExisting=false,
-                           bool groupIntoFolder=false,
                            string customPath="");
 
         void downloadAllImages(YouTubeVideoInfo& videoInfo);
@@ -95,16 +95,16 @@ class ofxYouTubeVideoUtils
         void removeListener(YouTubeDownloadEventListener* listener_);
         void print(string youTubeVideoID);
         vector<string> getVideoIDsFromPlaylist(string playlistID);
-    
+        static bool groupIntoFolder;
+
     private:
         YouTubeDownloadEventListener* listener;
     
-        string createFileName(YouTubeVideoURL& videoURL,
-                              bool groupIntoFolder = false);
+        string createFileName(YouTubeVideoURL& videoURL);
         void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
         void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
     
-        ofHttpResponse handleRedirect(ofHttpResponse httpResponse);
+        void handleRedirect(YouTubeDownloadRequest downloadRequest, string redirectedURL, string filePath);
         void onVideoHTTPResponse(ofHttpResponse& response);
     
     
