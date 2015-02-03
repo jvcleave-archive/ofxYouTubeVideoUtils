@@ -38,12 +38,22 @@ public:
     bool fetchInfo(string videoID_);
     vector<YouTubeVideoURL> getPreferredFormats(vector<YouTubeFormat>& preferredFormats);
     vector<YouTubeVideoURL> getPreferredFormats(vector<int>& preferredTags);
+    
     string getLargestImagePathAvailable();
-    YouTubeFormat getFormatForLargestResolutionForStreamTypeAndContainer(YouTubeFormat::STREAM streamType, YouTubeFormat::CONTAINER container);
+   
+    YouTubeFormat getLargestResolutionVideo();
+    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::STREAM);
+    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::CONTAINER);
+    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::VIDEO_ENCODING);
+    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::STREAM, YouTubeFormat::CONTAINER);
+    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::STREAM streamType, YouTubeFormat::CONTAINER container, YouTubeFormat::VIDEO_ENCODING videoEncoding);
+    
+    
     void print();
     string toString();
     void writeToLog(string logPath="");
 private:
     ofHttpResponse httpResponse;
+    YouTubeFormat getLargestResolutionVideo(int streamType, int container, int videoEncoding);
 
 };

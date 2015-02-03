@@ -95,7 +95,7 @@ class ofxYouTubeVideoUtils
         void removeListener(YouTubeDownloadEventListener* listener_);
         void print(string youTubeVideoID);
         vector<string> getVideoIDsFromPlaylist(string playlistID);
-        static bool groupIntoFolder;
+        static bool GROUP_DOWNLOADS_INTO_FOLDERS;
 
     private:
         YouTubeDownloadEventListener* listener;

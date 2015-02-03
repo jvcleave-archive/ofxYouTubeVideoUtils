@@ -3,10 +3,14 @@
 using Poco::RegularExpression;
 
 
+
+bool ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS = false;
+
 ofxYouTubeVideoUtils::ofxYouTubeVideoUtils()
 {
     listener = NULL;
     formatCollection = YouTubeFormatCollection::getInstance().getFormatCollection();
+    ofAddListener(ofURLResponseEvent(),this,&ofxYouTubeVideoUtils::onVideoHTTPResponse);
 }
 
 vector<string> ofxYouTubeVideoUtils::getVideoIDsFromPlaylist(string playlistID)
@@ -111,7 +115,7 @@ YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 }
 
 
-bool ofxYouTubeVideoUtils::groupIntoFolder = false;
+
 
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default: false
 {
@@ -134,7 +138,7 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
     }
     
     string fileName;
-    if(groupIntoFolder)
+    if(GROUP_DOWNLOADS_INTO_FOLDERS)
     {
         ofDirectory groupFolder = ofToDataPath(videoURL.videoID, true);
         if(!groupFolder.exists())
@@ -199,7 +203,7 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
         
         if (doAsync)
         {
-            ofAddListener(ofURLResponseEvent(),this,&ofxYouTubeVideoUtils::onVideoHTTPResponse);
+            
             
             downloadRequest.isAsync = true;
             downloadRequests.push_back(downloadRequest);
@@ -252,9 +256,22 @@ void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideoInfo& videoInfo)
 {
     for(size_t i=0; i<videoInfo.imageURLs.size(); i++)
     {
+        string filePath;
         string url = videoInfo.imageURLs[i];
         vector<string> urlPieces = ofSplitString(url, "/");
-        string filePath = ofToDataPath(videoInfo.videoID+ "_" +urlPieces.back(), true);
+        if(GROUP_DOWNLOADS_INTO_FOLDERS)
+        {
+            ofDirectory groupFolder = ofToDataPath(videoInfo.videoID, true);
+            if(!groupFolder.exists())
+            {
+                groupFolder.create();
+            }
+            filePath = groupFolder.getAbsolutePath()+"/"+videoInfo.videoID+ "_" +urlPieces.back();
+        }else
+        {
+            filePath = ofToDataPath(videoInfo.videoID+ "_" +urlPieces.back(), true);
+        }
+        
         ofSaveURLTo(url, filePath); //TODO Async option? may interfere with callback for videos
     }
 }

@@ -303,42 +303,107 @@ vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<int>& prefe
     return preferredURLs;
 }
 
-YouTubeFormat YouTubeVideoInfo::getFormatForLargestResolutionForStreamTypeAndContainer(YouTubeFormat::STREAM streamType, YouTubeFormat::CONTAINER container)
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo()
+{
+   /* int highestResolution = 0;
+    YouTubeFormat bestFormat;
+    for(size_t i=0; i<formats.size(); i++)
+    {
+        YouTubeFormat& currentFormat = formats[i];
+        if(highestResolution<currentFormat.videoResolution)
+        {
+            highestResolution = currentFormat.videoResolution;
+            bestFormat = currentFormat;
+        }
+    }
+    return bestFormat;*/
+    
+    return getLargestResolutionVideo( -1, -1, -1 );
+}
+
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType)
+{
+    return getLargestResolutionVideo( (int)streamType, -1, -1 );
+}
+
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::CONTAINER container)
+{
+    return getLargestResolutionVideo( -1, (int)container, -1 );
+
+}
+
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::VIDEO_ENCODING videoEncoding)
+{
+    return getLargestResolutionVideo( -1, -1, (int)videoEncoding );
+}
+
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType,
+                                                          YouTubeFormat::CONTAINER container)
+{
+    return getLargestResolutionVideo( (int)streamType, (int)container, -1 );
+}
+
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType,
+                                                          YouTubeFormat::CONTAINER container,
+                                                          YouTubeFormat::VIDEO_ENCODING videoEncoding)
+{
+    return getLargestResolutionVideo( (int)streamType, (int)container, (int)videoEncoding );
+}
+
+YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(int streamType,
+                                                          int container,
+                                                          int videoEncoding)
 {
     int highestResolution = 0;
     YouTubeFormat bestFormat;
     for(size_t i=0; i<formats.size(); i++)
     {
         YouTubeFormat& currentFormat = formats[i];
-        if(currentFormat.streamType == streamType &&
-           currentFormat.container == container)
+        
+        /*bool keepGoing = false;
+        if(highestResolution<currentFormat.videoResolution)
         {
-            
-            if(highestResolution<currentFormat.videoResolution)
+            keepGoing = true;
+            if(streamType != -1)
+            {
+                if(currentFormat.streamType == streamType)
+                {
+                    
+                }
+            }
+            highestResolution = currentFormat.videoResolution;
+            bestFormat = currentFormat;
+        }
+        
+        
+        if(streamType != -1)
+        {
+            if(currentFormat.streamType != streamType)
+            {
+               
+            }
+        }*/
+        
+        
+        if(highestResolution<currentFormat.videoResolution)
+        {
+            if((((int)currentFormat.streamType == streamType) || streamType == -1) &&
+               (((int)currentFormat.videoEncoding == videoEncoding || videoEncoding == -1))  &&
+               (((int)currentFormat.container == container || container == -1)))
             {
                 highestResolution = currentFormat.videoResolution;
                 bestFormat = currentFormat;
+                
             }
+            
         }
+        
+        
+        
     }
-    
-    if(bestFormat.itag == 0)
-    {
-        ofLogVerbose(__func__) << "NOTHING FOUND FOR SEARCH CRITERIA streamType: " << YouTubeFormat::streamTypeToString(streamType) << " container: " << YouTubeFormat::containerToString(container);
-        for(size_t i=0; i<formats.size(); i++)
-        {
-            ofLogVerbose() << formats[i].toString();
-        }
-        ofLogVerbose() << "-----------------------";
-
-    }else
-    {
-        ofLogVerbose(__func__) << "RETURNING " << bestFormat.toString();
-    }
-    
-    //bestFormat.print();
     return bestFormat;
 }
+
 string YouTubeVideoInfo::getLargestImagePathAvailable()
 {
     if(largestImagePath != "") return largestImagePath;

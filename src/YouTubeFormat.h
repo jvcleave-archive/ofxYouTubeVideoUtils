@@ -7,11 +7,11 @@ public:
     
     enum STREAM
     {
+        STREAM_NOT_SET=0,
         STREAM_AUDIO_VIDEO,
         STREAM_VIDEO_ONLY,
         STREAM_AUDIO_ONLY,
-        STREAM_LIVE,
-        STREAM_NOT_SET
+        STREAM_LIVE
     };
     
     enum CONTAINER

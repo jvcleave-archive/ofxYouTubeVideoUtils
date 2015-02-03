@@ -1,0 +1,189 @@
+#include "ofApp.h"
+
+
+
+void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
+{
+    info << "\n" << "COMPLETED ";
+    info <<"\n" <<	"videoID: "     << e.downloadRequest.videoID;
+    info <<"\n" <<	"filePath: "	<< e.downloadRequest.filePath;
+    videoPaths.push_back(e.downloadRequest.filePath);
+    
+}
+
+void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
+{
+    ofLogVerbose(__func__) << e.message;
+    
+    info << "\n" << "FAILED ";
+    info << "\n" << "url: "         << e.downloadRequest.url;
+    info << "\n" <<	"videoID: "     << e.downloadRequest.videoID;
+    info << "\n" <<	"filePath: "    << e.downloadRequest.filePath;
+}
+
+
+//--------------------------------------------------------------
+void ofApp::setup(){
+    
+    ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel("ofThread", OF_LOG_SILENT);
+    youTubeUtils.addListener(this);
+    doLoadNextMovie = false;
+    videoCounter = 0;
+    string test_list = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
+    
+    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(test_list);
+    
+    for(size_t i=0; i<videoIDs.size(); i++)
+    {
+        YouTubeVideoInfo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
+        if(videoInfo.isAvailable)
+        {
+            ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS   =   true; //default: false
+            youTubeUtils.downloadAllImages(videoInfo);
+            //TODO - show youTubeUtils infoCollection example
+            
+            
+            string largestImagePath = videoInfo.getLargestImagePathAvailable();
+            if (!largestImagePath.empty())
+            {
+                ofImage image;
+                bool didLoadImage = image.loadImage(largestImagePath);
+                if(didLoadImage)
+                {
+                    //images.push_back(image);
+                }
+            }
+            
+            
+            bool doSelectedFormats = true;
+            
+            //grab only selected formats;
+            if(doSelectedFormats)
+            {
+                
+                YouTubeFormat largestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
+                vector<YouTubeFormat> selectedFormats; //getPreferredFormats takes a vector
+                selectedFormats.push_back(largestFormat);
+                
+                
+                vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getPreferredFormats(selectedFormats);
+                ofLogVerbose(__func__) << "urlsForPreferredFormats SIZE: " << urlsForPreferredFormats.size();
+                youTubeVideoURLs.insert(youTubeVideoURLs.end(), urlsForPreferredFormats.begin(), urlsForPreferredFormats.end());
+            }else
+            {
+                //grab them all
+                youTubeVideoURLs.insert(youTubeVideoURLs.end(), videoInfo.videoURLs.begin(), videoInfo.videoURLs.end());
+            }
+        }else
+        {
+            ofLogError(__func__) << videoIDs[i] << "IS UNAVAILABLE reason: " << videoInfo.failReason;
+            //videoIDs.erase(videoIDs.begin()+i);
+        }
+    }
+    
+    if(youTubeVideoURLs.empty())
+    {
+        info << "NO MOVIES AVAILABLE" << "\n";
+    }else
+    {
+        ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS   =   true; //default: false
+        
+        for(int i=0; i<youTubeVideoURLs.size(); i++)
+        {
+            bool doAsync                =   true;   //default: false
+            bool doOverwriteExisting    =   false;  //default: false
+            
+            info << "\n" << "STARTING videoID: "        << youTubeVideoURLs[i].videoID ;
+            info << "\n" << "doOverwriteExisting: "     << doOverwriteExisting;
+            youTubeUtils.downloadVideo(youTubeVideoURLs[i], doAsync, doOverwriteExisting);
+        }
+        
+    }
+}
+
+
+//--------------------------------------------------------------
+void ofApp::update(){
+    if (!videoPaths.empty())
+    {
+        if(doLoadNextMovie || !videoPlayer.isPlaying())
+        {
+            doLoadNextMovie = false;
+            if (videoCounter+1 < videoPaths.size())
+            {
+                videoCounter++;
+            }else{
+                videoCounter = 0;
+            }
+            videoPlayer.loadMovie(videoPaths[videoCounter]);
+            videoPlayer.setLoopState(OF_LOOP_NONE);
+            videoPlayer.play();
+
+        }
+    }
+    
+    if(videoPlayer.isPlaying())
+    {
+        videoPlayer.update();
+    }
+}
+
+//--------------------------------------------------------------
+void ofApp::draw()
+{
+    if(videoPlayer.isPlaying())
+    {
+        videoPlayer.draw(0, 0, ofGetWidth(), ofGetHeight());
+    }
+    
+    ofDrawBitmapStringHighlight(info.str(), 20, 20, ofColor(0, 0, 0, 128), ofColor::yellow);
+}
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    if(key == 'n')
+    {
+        doLoadNextMovie = true;
+    }
+}
+
+//--------------------------------------------------------------
+void ofApp::keyReleased(int key){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseMoved(int x, int y ){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseDragged(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mousePressed(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::mouseReleased(int x, int y, int button){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::windowResized(int w, int h){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::gotMessage(ofMessage msg){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::dragEvent(ofDragInfo dragInfo){ 
+
+}
