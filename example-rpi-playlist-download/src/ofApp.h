@@ -40,7 +40,7 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener, public KeyListener,
         bool doLoadNextMovie;
         void loadNextMovie();
     
-        void startVideoPlayer(string videoPath);
+        void startVideoPlayer(YouTubeVideoURL currentYouTubeVideoURL);
         stringstream downloadInfo;
     
         bool hasVideoPlayerStarted;

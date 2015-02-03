@@ -143,6 +143,7 @@ void ofApp::draw()
         stringstream info;
         info <<  "APP FPS: " << ofGetFrameRate() << "\n";
         info << currentMetaData.toString() << "\n";
+        info << omxPlayer.getInfo() << "\n";
         
         
         ofDrawBitmapStringHighlight(info.str(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
