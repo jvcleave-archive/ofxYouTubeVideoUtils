@@ -7,11 +7,11 @@ public:
     
     enum STREAM
     {
+        STREAM_NOT_SET=0,
         STREAM_AUDIO_VIDEO,
         STREAM_VIDEO_ONLY,
         STREAM_AUDIO_ONLY,
-        STREAM_LIVE,
-        STREAM_NOT_SET
+        STREAM_LIVE
     };
     
     enum CONTAINER
@@ -95,5 +95,15 @@ public:
     
     void print();
     string toString();
+    
+    static string streamTypeToString(STREAM);
+    static string containerToString(CONTAINER);
+    static string videoResolutionToString(VIDEO_RESOLUTION);
+    static string videoEncodingToString(VIDEO_ENCODING);
+    static string videoProfileToString(VIDEO_PROFILE);
+    static string audioEncodingToString(AUDIO_ENCODING);
+
+    
+
 };
 

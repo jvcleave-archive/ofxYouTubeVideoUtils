@@ -38,81 +38,130 @@ void YouTubeFormat::print()
 {
     ofLogVerbose(__func__) << "\n" << toString();
 }
+
+
+string YouTubeFormat::streamTypeToString(STREAM stream)
+{
+    stringstream info;
+    switch (stream)
+    {
+        case STREAM_AUDIO_VIDEO:            {info << "STREAM_AUDIO_VIDEO";}         break;
+        case STREAM_VIDEO_ONLY:             {info << "STREAM_VIDEO_ONLY";}          break;
+        case STREAM_AUDIO_ONLY:             {info << "STREAM_AUDIO_ONLY";}          break;
+        case STREAM_LIVE:                   {info << "STREAM_LIVE";}                break;
+        case STREAM_NOT_SET:                {info << "STREAM_NOT_SET";}             break;
+        default:                            {info << "UNKNOWN streamType ";}        break;
+    }
+    info << "\n";
+    return info.str();
+}
+
+string YouTubeFormat::containerToString(CONTAINER container)
+{
+    stringstream info;
+    switch (container)
+    {
+        case CONTAINER_NOT_SET:             {info << "CONTAINER_NOT_SET";}          break;
+        case CONTAINER_FLV:                 {info << "CONTAINER_FLV";}              break;
+        case CONTAINER_3GP:                 {info << "CONTAINER_3GP";}              break;
+        case CONTAINER_MP4:                 {info << "CONTAINER_MP4";}              break;
+        case CONTAINER_WEBM:                {info << "CONTAINER_WEBM";}             break;
+        case CONTAINER_TS:                  {info << "CONTAINER_TS";}               break;
+        default:                            {info << "UNKNOWN container ";}         break;
+    }
+    info << "\n";
+    return info.str();
+}
+
+string YouTubeFormat::videoResolutionToString(VIDEO_RESOLUTION videoResolution)
+{
+    stringstream info;
+    switch (videoResolution)
+    {
+        case VIDEO_RESOLUTION_NOT_SET:      {info << "VIDEO_RESOLUTION_NOT_SET";}   break;
+        case VIDEO_RESOLUTION_240P:         {info << "VIDEO_RESOLUTION_240P";}      break;
+        case VIDEO_RESOLUTION_270P:         {info << "VIDEO_RESOLUTION_270P";}      break;
+        case VIDEO_RESOLUTION_144P:         {info << "VIDEO_RESOLUTION_144P";}      break;
+        case VIDEO_RESOLUTION_360P:         {info << "VIDEO_RESOLUTION_360P";}      break;
+        case VIDEO_RESOLUTION_480P:         {info << "VIDEO_RESOLUTION_480P";}      break;
+        case VIDEO_RESOLUTION_720P:         {info << "VIDEO_RESOLUTION_720P";}      break;
+        case VIDEO_RESOLUTION_720P_HFR:     {info << "VIDEO_RESOLUTION_720P_HFR";}  break;
+        case VIDEO_RESOLUTION_1080P:        {info << "VIDEO_RESOLUTION_1080P";}     break;
+        case VIDEO_RESOLUTION_1080P_HFR:    {info << "VIDEO_RESOLUTION_1080P_HFR";} break;
+        case VIDEO_RESOLUTION_1440P:        {info << "VIDEO_RESOLUTION_1440P";}     break;
+        case VIDEO_RESOLUTION_2160P:        {info << "VIDEO_RESOLUTION_2160P";}     break;
+        case VIDEO_RESOLUTION_3072P:        {info << "VIDEO_RESOLUTION_3072P";}     break;
+        case VIDEO_RESOLUTION_72P:          {info << "VIDEO_RESOLUTION_72P";}       break;
+            
+        default:                            {info << "UNKNOWN videoResolution ";}   break;
+    }
+    info << "\n";
+    return info.str();
+}
+
+string YouTubeFormat::videoEncodingToString(VIDEO_ENCODING videoEncoding)
+{
+    stringstream info;
+    switch (videoEncoding)
+    {
+        case VIDEO_ENCODING_NOT_SET:        {info << "VIDEO_ENCODING_NOT_SET";}     break;
+        case VIDEO_ENCODING_H263:           {info << "VIDEO_ENCODING_H263";}        break;
+        case VIDEO_ENCODING_MPEG4:          {info << "VIDEO_ENCODING_MPEG4";}       break;
+        case VIDEO_ENCODING_H264:           {info << "VIDEO_ENCODING_H264";}        break;
+        case VIDEO_ENCODING_VP8:            {info << "VIDEO_ENCODING_VP8";}         break;
+        case VIDEO_ENCODING_VP9:            {info << "VIDEO_ENCODING_VP9";}         break;
+        default:                            {info << "UNKNOWN videoEncoding ";}     break;
+    }
+    info << "\n";
+    return info.str();
+}
+
+
+string YouTubeFormat::videoProfileToString(VIDEO_PROFILE videoProfile)
+{
+    stringstream info;
+    switch (videoProfile)
+    {
+        case VIDEO_PROFILE_NOT_SET:         {info << "VIDEO_PROFILE_NOT_SET";}      break;
+        case VIDEO_PROFILE_SIMPLE:          {info << "VIDEO_PROFILE_SIMPLE";}       break;
+        case VIDEO_PROFILE_BASELINE:        {info << "VIDEO_PROFILE_BASELINE";}     break;
+        case VIDEO_PROFILE_HIGH:            {info << "VIDEO_PROFILE_HIGH";}         break;
+        case VIDEO_PROFILE_MAIN:            {info << "VIDEO_PROFILE_MAIN";}         break;
+        case VIDEO_PROFILE_3D:              {info << "VIDEO_PROFILE_3D";}           break;
+        default:                            {info << "UNKNOWN videoProfile ";}      break;
+    }
+    info << "\n";
+    return info.str();
+}
+
+string YouTubeFormat::audioEncodingToString(AUDIO_ENCODING audioEncoding)
+{
+    stringstream info;
+    switch (audioEncoding)
+    {
+        case AUDIO_ENCODING_NOT_SET:        {info << "AUDIO_ENCODING_NOT_SET";}     break;
+        case AUDIO_ENCODING_MP3:            {info << "AUDIO_ENCODING_MP3";}         break;
+        case AUDIO_ENCODING_AAC:            {info << "AUDIO_ENCODING_AAC";}         break;
+        case AUDIO_ENCODING_VORBIS:         {info << "AUDIO_ENCODING_VORBIS";}      break;
+    }
+    info << "\n";
+    return info.str();
+}
+
+
 string YouTubeFormat::toString()
 {
     stringstream info;
     info << "itag: " << itag << "\n";
     
-    switch (streamType)
-    {
-        case STREAM_AUDIO_VIDEO: {info << "STREAM_AUDIO_VIDEO" << "\n";} break;
-        case STREAM_VIDEO_ONLY: {info << "STREAM_VIDEO_ONLY" << "\n";} break;
-        case STREAM_AUDIO_ONLY: {info << "STREAM_AUDIO_ONLY" << "\n";} break;
-        case STREAM_LIVE:       {info << "STREAM_LIVE" << "\n";} break;
-        case STREAM_NOT_SET:    {info << "STREAM_NOT_SET" << "\n";} break;
-        default: {info << "UNKNOWN streamType " << "\n";} break;
-    }
-    
-    switch (container)
-    {
-        case CONTAINER_NOT_SET: {info << "CONTAINER_NOT_SET" << "\n";}  break;
-        case CONTAINER_FLV:     {info << "CONTAINER_FLV" << "\n";}      break;
-        case CONTAINER_3GP:     {info << "CONTAINER_3GP" << "\n";}      break;
-        case CONTAINER_MP4:     {info << "CONTAINER_MP4" << "\n";}      break;
-        case CONTAINER_WEBM:    {info << "CONTAINER_WEBM" << "\n";}     break;
-        case CONTAINER_TS:      {info << "CONTAINER_TS" << "\n";}       break;
-        default:                {info << "UNKNOWN container " << "\n";} break;
-    }
-    
-    switch (videoResolution)
-    {
-        case VIDEO_RESOLUTION_NOT_SET:      {info << "VIDEO_RESOLUTION_NOT_SET" << "\n";}   break;
-        case VIDEO_RESOLUTION_240P:         {info << "VIDEO_RESOLUTION_240P" << "\n";}      break;
-        case VIDEO_RESOLUTION_270P:         {info << "VIDEO_RESOLUTION_270P" << "\n";}      break;
-        case VIDEO_RESOLUTION_144P:         {info << "VIDEO_RESOLUTION_144P" << "\n";}      break;
-        case VIDEO_RESOLUTION_360P:         {info << "VIDEO_RESOLUTION_360P" << "\n";}      break;
-        case VIDEO_RESOLUTION_480P:         {info << "VIDEO_RESOLUTION_480P" << "\n";}      break;
-        case VIDEO_RESOLUTION_720P:         {info << "VIDEO_RESOLUTION_720P" << "\n";}      break;
-        case VIDEO_RESOLUTION_720P_HFR:     {info << "VIDEO_RESOLUTION_720P_HFR" << "\n";}  break;
-        case VIDEO_RESOLUTION_1080P:        {info << "VIDEO_RESOLUTION_1080P" << "\n";}     break;
-        case VIDEO_RESOLUTION_1080P_HFR:    {info << "VIDEO_RESOLUTION_1080P_HFR" << "\n";} break;
-        case VIDEO_RESOLUTION_1440P:        {info << "VIDEO_RESOLUTION_1440P" << "\n";}     break;
-        case VIDEO_RESOLUTION_2160P:        {info << "VIDEO_RESOLUTION_2160P" << "\n";}     break;
-        case VIDEO_RESOLUTION_3072P:        {info << "VIDEO_RESOLUTION_3072P" << "\n";}     break;
-        case VIDEO_RESOLUTION_72P:          {info << "VIDEO_RESOLUTION_72P" << "\n";}       break;
-            
-        default: {info << "UNKNOWN videoResolution " << "\n";} break;
-    }
-    
-    switch (videoEncoding)
-    {
-        case VIDEO_ENCODING_NOT_SET: {info << "VIDEO_ENCODING_NOT_SET" << "\n";}  break;
-        case VIDEO_ENCODING_H263:     {info << "VIDEO_ENCODING_H263" << "\n";}      break;
-        case VIDEO_ENCODING_MPEG4:     {info << "VIDEO_ENCODING_MPEG4" << "\n";}      break;
-        case VIDEO_ENCODING_H264:     {info << "VIDEO_ENCODING_H264" << "\n";}      break;
-        case VIDEO_ENCODING_VP8:    {info << "VIDEO_ENCODING_VP8" << "\n";}     break;
-        case VIDEO_ENCODING_VP9:      {info << "VIDEO_ENCODING_VP9" << "\n";}       break;
-        default:                {info << "UNKNOWN videoEncoding " << "\n";} break;
-    }
-    
-    switch (videoProfile)
-    {
-        case VIDEO_PROFILE_NOT_SET: {info << "VIDEO_PROFILE_NOT_SET" << "\n";}  break;
-        case VIDEO_PROFILE_SIMPLE:     {info << "VIDEO_PROFILE_SIMPLE" << "\n";}      break;
-        case VIDEO_PROFILE_BASELINE:     {info << "VIDEO_PROFILE_BASELINE" << "\n";}      break;
-        case VIDEO_PROFILE_HIGH:     {info << "VIDEO_PROFILE_HIGH" << "\n";}      break;
-        case VIDEO_PROFILE_MAIN:    {info << "VIDEO_PROFILE_MAIN" << "\n";}     break;
-        case VIDEO_PROFILE_3D:      {info << "VIDEO_PROFILE_3D" << "\n";}       break;
-        default:                {info << "UNKNOWN videoProfile " << "\n";} break;
-    }
-    
-    switch (audioEncoding)
-    {
-        case AUDIO_ENCODING_NOT_SET: {info << "AUDIO_ENCODING_NOT_SET" << "\n";}  break;
-        case AUDIO_ENCODING_MP3:     {info << "AUDIO_ENCODING_MP3" << "\n";}      break;
-        case AUDIO_ENCODING_AAC:     {info << "AUDIO_ENCODING_AAC" << "\n";}      break;
-        case AUDIO_ENCODING_VORBIS:     {info << "AUDIO_ENCODING_VORBIS" << "\n";}      break;
-    }
+    info << streamTypeToString(streamType);
+    info << containerToString(container);
+    info << videoResolutionToString(videoResolution);
+    info << videoEncodingToString(videoEncoding);
+    info << videoProfileToString(videoProfile);
+    info << "videoBitrateMbits: " << videoBitrateMbits << "\n";
+    info << audioEncodingToString(audioEncoding);
+    info << "audioBitratekbits_: " << audioBitratekbits << "\n";
     
     return info.str();
     
