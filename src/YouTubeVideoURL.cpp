@@ -10,10 +10,11 @@ YouTubeVideoURL::YouTubeVideoURL()
     triedLastTime = false;
 }
 
-bool YouTubeVideoURL::setup(string videoID_, string url_, string delimiter)
+bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, string url_, string delimiter)
 {
     bool success = false;
     videoID = videoID_;
+    metadata = metadata_;
     url = url_;
     
     vector <string> params = ofSplitString(url, delimiter);
@@ -45,12 +46,12 @@ bool YouTubeVideoURL::setup(string videoID_, string url_, string delimiter)
             ofLogVerbose(__func__) << "itag error?";
             string decodedRejectedURL;
             Poco::URI::decode(url_, decodedRejectedURL);
-            success = setup(videoID, decodedRejectedURL);
+            success = setup(videoID, metadata, decodedRejectedURL);
         }
         if(!success && !triedLastTime)
         {
             triedLastTime= true;
-            success = setup(videoID, url, "?");
+            success = setup(videoID, metadata, url, "?");
             if(!success)
             {
                 ofLogVerbose() << "WTF";

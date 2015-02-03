@@ -2,42 +2,28 @@
 #include "ofMain.h"
 #include "Poco/URI.h"
 #include "YouTubeVideoURL.h"
+#include "YouTubeVideoMetadata.h"
 
-class YouTubeVideoURL;
-
-class YouTubeVideoInfo
+class YouTubeVideo
 {
 public:
+
     string videoID;
-    string title;
-    string author;
-    int lengthInSeconds;
-    string smallImagePath;
-    string mediumImagePath;
-    string largeImagePath;
-    string largestImagePath;
-    
-    vector <string> urlParams;
-    
-    vector <string> keys;
-    vector <string> values;
+    YouTubeVideoMetadata metadata;
     
     vector<YouTubeVideoURL> videoURLs;
-    vector<string> imageURLs;
-    vector <int> itags;
-    vector<string> urls;
-    vector<YouTubeFormat> formats;
-    vector<string> fallback_hosts;
-    
+    vector<string>          imageURLs;
+    vector<YouTubeFormat>   formats;
+
     static string API_URL;
     bool hasLoaded;
     bool isAvailable;
     string failReason;
     
-    YouTubeVideoInfo();
+    YouTubeVideo();
     bool fetchInfo(string videoID_);
-    vector<YouTubeVideoURL> getPreferredFormats(vector<YouTubeFormat>& preferredFormats);
-    vector<YouTubeVideoURL> getPreferredFormats(vector<int>& preferredTags);
+    vector<YouTubeVideoURL> getPreferredFormats(vector<YouTubeFormat>&);
+    vector<YouTubeVideoURL> getPreferredFormats(vector<int>&);
     
     string getLargestImagePathAvailable();
    
@@ -46,14 +32,24 @@ public:
     YouTubeFormat getLargestResolutionVideo(YouTubeFormat::CONTAINER);
     YouTubeFormat getLargestResolutionVideo(YouTubeFormat::VIDEO_ENCODING);
     YouTubeFormat getLargestResolutionVideo(YouTubeFormat::STREAM, YouTubeFormat::CONTAINER);
-    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::STREAM streamType, YouTubeFormat::CONTAINER container, YouTubeFormat::VIDEO_ENCODING videoEncoding);
+    YouTubeFormat getLargestResolutionVideo(YouTubeFormat::STREAM, YouTubeFormat::CONTAINER, YouTubeFormat::VIDEO_ENCODING);
     
     
     void print();
     string toString();
     void writeToLog(string logPath="");
+    
 private:
     ofHttpResponse httpResponse;
     YouTubeFormat getLargestResolutionVideo(int streamType, int container, int videoEncoding);
+    
+    vector <int>    itags;
+    vector<string>  urls;
+    vector<string>  fallback_hosts;
+    
+    vector <string> urlParams;
+    vector <string> keys;
+    vector <string> values;
+    
 
 };

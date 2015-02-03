@@ -5,7 +5,10 @@
 void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
 {
     info << "\n" << "COMPLETED ";
-    info <<"\n" <<	"videoID: "     << e.downloadRequest.videoID;
+    //info << "\n" << "title: "       << e.downloadRequest.videoURL.metadata.title;
+    //info <<"\n" <<	"videoID: "     << e.downloadRequest.videoID;
+    
+    info << e.downloadRequest.videoURL.metadata.toString();
     info <<"\n" <<	"filePath: "	<< e.downloadRequest.filePath;
     videoPaths.push_back(e.downloadRequest.filePath);
     
@@ -16,8 +19,8 @@ void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
     ofLogVerbose(__func__) << e.message;
     
     info << "\n" << "FAILED ";
+    info << e.downloadRequest.videoURL.metadata.toString();
     info << "\n" << "url: "         << e.downloadRequest.url;
-    info << "\n" <<	"videoID: "     << e.downloadRequest.videoID;
     info << "\n" <<	"filePath: "    << e.downloadRequest.filePath;
 }
 
@@ -31,9 +34,11 @@ void ofApp::setup()
 	ofSetLogLevel("ofThread", OF_LOG_ERROR);
     youTubeUtils.addListener(this);
     
-    string videoID = "1EROmqidZQc";
+    string videoID = "vicRhwBC0hE";
+    ofxYouTubeVideoUtils::USE_PRETTY_NAMES              =   true; //default: false
+    ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS  =   true; //default: false
     
-    YouTubeVideoInfo videoInfo = youTubeUtils.loadVideoInfo(videoID);
+    YouTubeVideo videoInfo = youTubeUtils.loadVideoInfo(videoID);
     
     if(videoInfo.isAvailable) //ie - if embedding is not allowed, can't download
     {
