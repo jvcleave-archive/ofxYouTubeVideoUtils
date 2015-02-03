@@ -1,11 +1,3 @@
-//
-//  YouTubeVideocpp
-//  example_playlist
-//
-//  Created by jason van cleave on 2/3/15.
-//
-//
-
 #include "YouTubeVideo.h"
 
 

@@ -291,18 +291,6 @@ vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<int>& preferred
 
 YouTubeFormat YouTubeVideo::getLargestResolutionVideo()
 {
-   /* int highestResolution = 0;
-    YouTubeFormat bestFormat;
-    for(size_t i=0; i<formats.size(); i++)
-    {
-        YouTubeFormat& currentFormat = formats[i];
-        if(highestResolution<currentFormat.videoResolution)
-        {
-            highestResolution = currentFormat.videoResolution;
-            bestFormat = currentFormat;
-        }
-    }
-    return bestFormat;*/
     
     return getLargestResolutionVideo( -1, -1, -1 );
 }
@@ -345,31 +333,6 @@ YouTubeFormat YouTubeVideo::getLargestResolutionVideo(int streamType,
     for(size_t i=0; i<formats.size(); i++)
     {
         YouTubeFormat& currentFormat = formats[i];
-        
-        /*bool keepGoing = false;
-        if(highestResolution<currentFormat.videoResolution)
-        {
-            keepGoing = true;
-            if(streamType != -1)
-            {
-                if(currentFormat.streamType == streamType)
-                {
-                    
-                }
-            }
-            highestResolution = currentFormat.videoResolution;
-            bestFormat = currentFormat;
-        }
-        
-        
-        if(streamType != -1)
-        {
-            if(currentFormat.streamType != streamType)
-            {
-               
-            }
-        }*/
-        
         
         if(highestResolution<currentFormat.videoResolution)
         {
