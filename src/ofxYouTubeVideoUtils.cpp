@@ -1,10 +1,11 @@
 #include "ofxYouTubeVideoUtils.h"
 #include "Poco/RegularExpression.h"
-using Poco::RegularExpression;
+
 
 
 
 bool ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS = false;
+bool ofxYouTubeVideoUtils::USE_PRETTY_NAMES = false;
 
 ofxYouTubeVideoUtils::ofxYouTubeVideoUtils()
 {
@@ -22,11 +23,11 @@ vector<string> ofxYouTubeVideoUtils::getVideoIDsFromPlaylist(string playlistID)
     if(response.status>0)
     {
         
-        RegularExpression regEx("<yt:videoid>(.+?)<\\/yt:videoid>");
+        Poco::RegularExpression regEx("<yt:videoid>(.+?)<\\/yt:videoid>");
         
         string haystack = response.data.getText();
         
-        RegularExpression::Match match;
+        Poco::RegularExpression::Match match;
         string::size_type haystackOffset = 0;
         
         vector<string> needles;
@@ -54,53 +55,30 @@ vector<string> ofxYouTubeVideoUtils::getVideoIDsFromPlaylist(string playlistID)
     return videoIDs;
 }
 
-ofxYouTubeVideoUtils::~ofxYouTubeVideoUtils()
-{
-    ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
-    if(!downloadRequests.empty())
-    {
-        ofStopURLLoader();
-        ofRemoveAllURLRequests();
-    }
-}
 
-void ofxYouTubeVideoUtils::addListener(YouTubeDownloadEventListener* listener_)
-{
-    listener = listener_;
-}
-
-void ofxYouTubeVideoUtils::removeListener(YouTubeDownloadEventListener* listener_)
-{
-    if(listener_ == listener)
-    {
-        listener = NULL;
-    }
-}
 
 YouTubeFormat ofxYouTubeVideoUtils::getFormat(int itag)
 {
     return YouTubeFormatCollection::getInstance().getFormatForItag(itag);
 }
 
-void ofxYouTubeVideoUtils::findiTagsForVideoResolution(vector<YouTubeFormat>& formats, YouTubeFormat::VIDEO_RESOLUTION videoResolution)
+vector<YouTubeFormat> ofxYouTubeVideoUtils::findiTagsForVideoResolution(YouTubeFormat::VIDEO_RESOLUTION videoResolution)
 {
+    vector<YouTubeFormat> formats;
     for(size_t i=0; i<formatCollection.size(); i++ )
     {
         if(formatCollection[i].videoResolution == videoResolution)
         {
             formats.push_back(formatCollection[i]);
-        }else
-        {
-           // ofLogError(__func__) << formatCollection[i].videoResolution << " IS NOT " << videoResolution;
         }
     }
+    return formats;
 }
 
-
-YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
+YouTubeVideo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 {
     ofLogVerbose(__func__) << "LOADING youTubeVideoID: " << youTubeVideoID;
-    YouTubeVideoInfo videoInfo;
+    YouTubeVideo videoInfo;
     bool didLoad = videoInfo.fetchInfo(youTubeVideoID);
 
     if(!didLoad || videoInfo.isAvailable == false)
@@ -114,18 +92,26 @@ YouTubeVideoInfo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
     return videoInfo;
 }
 
-
-
-
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default: false
 {
-    //TODO Pretty format option (e.g. Title + Resolution)
     stringstream name;
-    name << videoURL.videoID;
-    name << "_";
-    name << videoURL.itag;
+    if(USE_PRETTY_NAMES)
+    {
+        name << videoURL.metadata.title;
+        name << "_";
+        name << videoURL.videoID;
+        name << "_";
+        name << videoURL.itag;
+        
+    }else
+    {
+        name << videoURL.videoID;
+        name << "_";
+        name << videoURL.itag;
+    }
+
     
-    YouTubeFormat format = videoURL.format;
+    YouTubeFormat& format = videoURL.format;
     ofLogVerbose(__func__) << "VIDEO_RESOLUTION: " << format.videoResolution;
     switch (format.container)
     {
@@ -138,9 +124,17 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
     }
     
     string fileName;
+    string folderName;
+    if(USE_PRETTY_NAMES)
+    {
+        folderName = videoURL.metadata.title;
+    }else
+    {
+        folderName = videoURL.videoID;
+    }
     if(GROUP_DOWNLOADS_INTO_FOLDERS)
     {
-        ofDirectory groupFolder = ofToDataPath(videoURL.videoID, true);
+        ofDirectory groupFolder = ofToDataPath(folderName, true);
         if(!groupFolder.exists())
         {
             groupFolder.create();
@@ -161,7 +155,7 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
 bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
                                          bool doAsync,              //default: false
                                          bool doOverwriteExisting,  //default: false
-                                         string customPath)         //default: ""  //TODO implement customPath
+                                         string customPath)         //default: ""
 {
     bool success = false;
     stringstream info;
@@ -171,21 +165,24 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
     if(customPath.empty())
     {
         fileName = createFileName(videoURL);
-    }else{
+    }else
+    {
         fileName = customPath;
     }
-    ofFile file(fileName);
     
     YouTubeDownloadRequest downloadRequest;
     downloadRequest.videoURL = videoURL; //TODO - better way - packing in for redirects
     downloadRequest.url = videoURL.url;
     downloadRequest.videoID = videoURL.videoID;
     downloadRequest.filePath = fileName;
+    
+    ofFile file(fileName);
     if(file.exists() && file.getSize()==0)
     {
-        info << "fileName: " << fileName << " EXISTS - BUT IS 0 bytes";
+        info << "fileName: " << fileName << " EXISTS - BUT IS 0 bytes, WILL OVERWRITE";
         doOverwriteExisting = true;
     }
+    
     if(file.exists() && !doOverwriteExisting)
     {
         info << "fileName: " << fileName << " EXISTS - NOT OVERWRITING";
@@ -203,7 +200,6 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
         
         if (doAsync)
         {
-            
             
             downloadRequest.isAsync = true;
             downloadRequests.push_back(downloadRequest);
@@ -252,42 +248,44 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
 
 }
 
-void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideoInfo& videoInfo)
+void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideo& videoInfo)
 {
     for(size_t i=0; i<videoInfo.imageURLs.size(); i++)
     {
         string filePath;
         string url = videoInfo.imageURLs[i];
+        
         vector<string> urlPieces = ofSplitString(url, "/");
+        string title;
+        
+        if(USE_PRETTY_NAMES)
+        {
+            title = videoInfo.metadata.title;
+        }else
+        {
+            title = videoInfo.videoID;
+        }
+        
         if(GROUP_DOWNLOADS_INTO_FOLDERS)
         {
-            ofDirectory groupFolder = ofToDataPath(videoInfo.videoID, true);
+            ofDirectory groupFolder = ofToDataPath(title, true);
+            
             if(!groupFolder.exists())
             {
                 groupFolder.create();
             }
-            filePath = groupFolder.getAbsolutePath()+"/"+videoInfo.videoID+ "_" +urlPieces.back();
+            
+            filePath = groupFolder.getAbsolutePath()+"/"+title+ "_" +urlPieces.back();
         }else
         {
-            filePath = ofToDataPath(videoInfo.videoID+ "_" +urlPieces.back(), true);
+            filePath = ofToDataPath(title+ "_" +urlPieces.back(), true);
         }
+        
+        //TODO? add to YouTubeVideoMetadata so can access already downloaded image?
         
         ofSaveURLTo(url, filePath); //TODO Async option? may interfere with callback for videos
     }
 }
-
-void ofxYouTubeVideoUtils::broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData)
-{
-    if(!listener) return;
-    listener->onYouTubeDownloadEventComplete(eventData);
-}
-
-void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData& eventData)
-{
-    if(!listener) return;
-    listener->onYouTubeDownloadEventError(eventData);
-}
-
 
 void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
 {
@@ -327,9 +325,8 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                     
                 }
             }
+            
             downloadRequests.erase(downloadRequests.begin() + i);
-            
-            
         }
     }
     if (downloadRequests.empty())
@@ -348,6 +345,31 @@ void ofxYouTubeVideoUtils::handleRedirect(YouTubeDownloadRequest downloadRequest
 
 
 
+void ofxYouTubeVideoUtils::broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData)
+{
+    if(!listener) return;
+    listener->onYouTubeDownloadEventComplete(eventData);
+}
+
+void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData& eventData)
+{
+    if(!listener) return;
+    listener->onYouTubeDownloadEventError(eventData);
+}
+
+
+void ofxYouTubeVideoUtils::addListener(YouTubeDownloadEventListener* listener_)
+{
+    listener = listener_;
+}
+
+void ofxYouTubeVideoUtils::removeListener(YouTubeDownloadEventListener* listener_)
+{
+    if(listener_ == listener)
+    {
+        listener = NULL;
+    }
+}
 
 void ofxYouTubeVideoUtils::print(string videoID)
 {
@@ -361,17 +383,25 @@ void ofxYouTubeVideoUtils::print(string videoID)
     }
 }
 
-
-
-
-
-
+ofxYouTubeVideoUtils::~ofxYouTubeVideoUtils()
+{
+    ofRemoveListener(ofURLResponseEvent(), this, &ofxYouTubeVideoUtils::onVideoHTTPResponse);
+    ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
+    if(!downloadRequests.empty())
+    {
+        ofStopURLLoader();
+        ofRemoveAllURLRequests();
+    }
+}
 
 
 
 
 
 #if 0
+
+//may need for redirects
+
 #include "Poco/Net/HTTPSession.h"
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPSClientSession.h"

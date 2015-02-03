@@ -1,26 +1,21 @@
-#include "YouTubeVideoInfo.h"
+#include "YouTubeVideo.h"
 
-string YouTubeVideoInfo::API_URL = "http://www.youtube.com/get_video_info?&video_id=";
+string YouTubeVideo::API_URL = "http://www.youtube.com/get_video_info?&video_id=";
 
-YouTubeVideoInfo::YouTubeVideoInfo()
+YouTubeVideo::YouTubeVideo()
 {
     videoID = "";
-    title = "";
-    author = "";
-    smallImagePath = "";
-    mediumImagePath = "";
-    largeImagePath = "";
-    largestImagePath = "";
-    lengthInSeconds = 0;
+    
     hasLoaded = false;
     isAvailable = false;
     failReason = "";
 };
 
 
-bool YouTubeVideoInfo::fetchInfo(string videoID_)
+bool YouTubeVideo::fetchInfo(string videoID_)
 {
     videoID = videoID_;
+    metadata.videoID = videoID;
     
     bool wasSuccessful = false;
     string url = API_URL+videoID;
@@ -31,7 +26,6 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
         string decoded;
         Poco::URI::decode (httpResponse.data.getText(), decoded);
         
-        //ofLogVerbose(__func__) << "decoded: \n" << decoded << "\n\n\n\n\n\n";
         urlParams = ofSplitString(decoded, "&");
         
         for(size_t i=0; i<urlParams.size(); i++)
@@ -50,18 +44,13 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
                 {
                     continue;
                 }
-                if(key.find("url") != string::npos && key.find("=") != string::npos && key.find(",") != string::npos)
-                {
-                    
-                    ofLogVerbose() << "damn.";
-                }
                 if(value.find("url") != string::npos)
                 {
                     if(value.find("=") != string::npos)
                     {
                         if (value.find(",") != string::npos)
                         {
-                            ofLogVerbose() << "silent damn.";
+                            ofLogVerbose() << "found buried URL married with another key/value pair";
                             vector<string> pieces = ofSplitString(value, ",");
                             for(size_t p=0; p<pieces.size(); p++)
                             {
@@ -75,10 +64,6 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
                                     string decodeYetAgain;
                                     Poco::URI::decode (value, decodeYetAgain);
                                     value = decodeYetAgain;
-                                    ofLogVerbose() << "key: " << key << " value: " << value;
-                                   
-                                    
-                                    //vector<string> pieces = ofSplitString(value, ",");
                                 }
                             }
                             
@@ -111,34 +96,34 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
                 
                 if(key == "title")
                 {
-                    title = value;
-                    ofStringReplace(title, "+", " ");
+                    metadata.title = value;
+                    ofStringReplace(metadata.title, "+", " ");
                 }
                 
                 if(key == "author")
                 {
-                    author = value;
-                    ofStringReplace(author, "+", " ");
+                    metadata.author = value;
+                    ofStringReplace(metadata.author, "+", " ");
                 }
                 if(key == "thumbnail_url")
                 {
-                    smallImagePath = value;
+                    metadata.smallImagePath = value;
                     imageURLs.push_back(value);
                 }
                 if(key == "iurlmq")
                 {
-                    mediumImagePath = value;
+                    metadata.mediumImagePath = value;
                     imageURLs.push_back(value);
                 }
                 if(key == "iurlsd")
                 {
-                    largeImagePath = value;
+                    metadata.largeImagePath = value;
                     imageURLs.push_back(value);
                 }
                 
                 if(key == "iurlmaxres")
                 {
-                    largestImagePath = value;
+                    metadata.largestImagePath = value;
                     imageURLs.push_back(value);
                 }
                 if(key == "fallback_host")
@@ -149,7 +134,7 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
                 
                 if(key == "length_seconds")
                 {
-                    lengthInSeconds = ofToInt(value);
+                    metadata.lengthInSeconds = ofToInt(value);
                 }
                 if(key == "status")
                 {
@@ -172,7 +157,7 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
         {
             //ofLogVerbose(__func__) << i <<  " url: " << urls[i];
             YouTubeVideoURL youtubeVideoURL;
-            bool didSetup = youtubeVideoURL.setup(videoID, urls[i]);
+            bool didSetup = youtubeVideoURL.setup(videoID, metadata, urls[i]);
             if(didSetup)
             {
                 ofLogVerbose(__func__) << "videoID: " << videoID << " youtubeVideoURL.format.itag: " << youtubeVideoURL.format.itag;
@@ -210,6 +195,7 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
     {
         ofLogError() << "COULD NOT LOAD URL \n" << url << "\n" << "httpResponse.status: " << httpResponse.status;
     }
+    
     hasLoaded = wasSuccessful;
     if(failReason.empty())
     {
@@ -218,7 +204,7 @@ bool YouTubeVideoInfo::fetchInfo(string videoID_)
     return wasSuccessful;
 }
 
-vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<YouTubeFormat>& preferredFormats)
+vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<YouTubeFormat>& preferredFormats)
 {
     vector<YouTubeVideoURL> preferredURLs;
     
@@ -240,7 +226,7 @@ vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<YouTubeForm
         
         if(formats.empty())
         {
-            ofLogError(__func__) << "NO FORMATS AVAILABLE FOR title: " << title << " videoID: " << videoID;
+            ofLogError(__func__) << "NO FORMATS AVAILABLE FOR title: " << metadata.title << " videoID: " << videoID;
             print();
         }else
         {
@@ -251,7 +237,7 @@ vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<YouTubeForm
             }
             for(size_t i=0; i<formats.size(); i++)
             {
-                info << "FORMATS " << preferredFormatsList.str() << "NOT AVAILABLE FOR title: " << title << " videoID: " << videoID;
+                info << "FORMATS " << preferredFormatsList.str() << "NOT AVAILABLE FOR title: " << metadata.title << " videoID: " << videoID;
                 info << " AVAILABLE ARE: \n" << formats[i].toString() << "\n";
             }
             
@@ -261,7 +247,7 @@ vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<YouTubeForm
     return preferredURLs;
 }
 
-vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<int>& preferredTags)
+vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<int>& preferredTags)
 {
     vector<YouTubeVideoURL> preferredURLs;
     
@@ -294,16 +280,16 @@ vector<YouTubeVideoURL> YouTubeVideoInfo::getPreferredFormats(vector<int>& prefe
         
         if(itags.empty())
         {
-            ofLogVerbose(__func__) << "NO TAGS FOR title: " << title << " videoID: "<< videoID;
+            ofLogVerbose(__func__) << "NO TAGS FOR title: " << metadata.title << " videoID: "<< videoID;
         }else
         {
-            ofLogVerbose(__func__) << "NO PREFFERED TAGS " << preferredTagLog.str() << " AVAILABLE FOR title: " << title << " videoID: "<< videoID << " AVAILABLE FORMATS ARE: \n" << itagLog.str();
+            ofLogVerbose(__func__) << "NO PREFFERED TAGS " << preferredTagLog.str() << " AVAILABLE FOR title: " << metadata.title << " videoID: "<< videoID << " AVAILABLE FORMATS ARE: \n" << itagLog.str();
         }
     }
     return preferredURLs;
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo()
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo()
 {
    /* int highestResolution = 0;
     YouTubeFormat bestFormat;
@@ -321,36 +307,36 @@ YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo()
     return getLargestResolutionVideo( -1, -1, -1 );
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType)
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType)
 {
     return getLargestResolutionVideo( (int)streamType, -1, -1 );
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::CONTAINER container)
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo(YouTubeFormat::CONTAINER container)
 {
     return getLargestResolutionVideo( -1, (int)container, -1 );
 
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::VIDEO_ENCODING videoEncoding)
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo(YouTubeFormat::VIDEO_ENCODING videoEncoding)
 {
     return getLargestResolutionVideo( -1, -1, (int)videoEncoding );
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType,
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType,
                                                           YouTubeFormat::CONTAINER container)
 {
     return getLargestResolutionVideo( (int)streamType, (int)container, -1 );
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType,
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo(YouTubeFormat::STREAM streamType,
                                                           YouTubeFormat::CONTAINER container,
                                                           YouTubeFormat::VIDEO_ENCODING videoEncoding)
 {
     return getLargestResolutionVideo( (int)streamType, (int)container, (int)videoEncoding );
 }
 
-YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(int streamType,
+YouTubeFormat YouTubeVideo::getLargestResolutionVideo(int streamType,
                                                           int container,
                                                           int videoEncoding)
 {
@@ -404,22 +390,18 @@ YouTubeFormat YouTubeVideoInfo::getLargestResolutionVideo(int streamType,
     return bestFormat;
 }
 
-string YouTubeVideoInfo::getLargestImagePathAvailable()
+string YouTubeVideo::getLargestImagePathAvailable()
 {
-    if(largestImagePath != "") return largestImagePath;
-    if(largeImagePath != "") return largeImagePath;
-    if(mediumImagePath != "") return mediumImagePath;
-    if(smallImagePath != "") return smallImagePath;
-    return "";
+    return metadata.getLargestImagePathAvailable();
 }
 
-void YouTubeVideoInfo::print()
+void YouTubeVideo::print()
 {
     string info = toString();
     ofLogVerbose(__func__) << info;
 }
 
-void YouTubeVideoInfo::writeToLog(string logPath)
+void YouTubeVideo::writeToLog(string logPath)
 {
    
     if(logPath.empty())
@@ -439,9 +421,9 @@ void YouTubeVideoInfo::writeToLog(string logPath)
     ss << "\n META SECTION \n";
     
     ss << "videoID:" << videoID << "\n";
-    ss << "author:" << author << "\n";
-    ss << "title:" << title << "\n";
-    ss << "lengthInSeconds:" << lengthInSeconds << "\n";
+    ss << "author:" << metadata.author << "\n";
+    ss << "title:" << metadata.title << "\n";
+    ss << "lengthInSeconds:" << metadata.lengthInSeconds << "\n";
 
     for(size_t i=0; i<itags.size(); i++)
     {
@@ -453,7 +435,7 @@ void YouTubeVideoInfo::writeToLog(string logPath)
     ofBufferToFile(ofToDataPath(logPath, true), buffer);
 }
 
-string YouTubeVideoInfo::toString()
+string YouTubeVideo::toString()
 {
     stringstream ss;
     

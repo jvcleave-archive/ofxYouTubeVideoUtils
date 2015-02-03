@@ -1,11 +1,10 @@
 #include "ofApp.h"
 
 
-
 void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
 {
     info << "\n" << "COMPLETED ";
-    info <<"\n" <<	"videoID: "     << e.downloadRequest.videoID;
+    info << e.downloadRequest.videoURL.metadata.toString();
     info <<"\n" <<	"filePath: "	<< e.downloadRequest.filePath;
     videoPaths.push_back(e.downloadRequest.filePath);
     
@@ -16,11 +15,10 @@ void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
     ofLogVerbose(__func__) << e.message;
     
     info << "\n" << "FAILED ";
+    info << e.downloadRequest.videoURL.metadata.toString();
     info << "\n" << "url: "         << e.downloadRequest.url;
-    info << "\n" <<	"videoID: "     << e.downloadRequest.videoID;
     info << "\n" <<	"filePath: "    << e.downloadRequest.filePath;
 }
-
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -36,10 +34,12 @@ void ofApp::setup(){
     
     for(size_t i=0; i<videoIDs.size(); i++)
     {
-        YouTubeVideoInfo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
+        YouTubeVideo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
         if(videoInfo.isAvailable)
         {
-            ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS   =   true; //default: false
+            ofxYouTubeVideoUtils::USE_PRETTY_NAMES              =   true; //default: false
+            ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS  =   true; //default: false
+            
             youTubeUtils.downloadAllImages(videoInfo);
             //TODO - show youTubeUtils infoCollection example
             
@@ -102,7 +102,7 @@ void ofApp::setup(){
     }
 }
 
-
+bool isFirstRun = true;
 //--------------------------------------------------------------
 void ofApp::update(){
     if (!videoPaths.empty())
@@ -112,7 +112,14 @@ void ofApp::update(){
             doLoadNextMovie = false;
             if (videoCounter+1 < videoPaths.size())
             {
-                videoCounter++;
+                if(isFirstRun)
+                {
+                    isFirstRun = false;
+                }else
+                {
+                    videoCounter++;
+                }
+                
             }else{
                 videoCounter = 0;
             }
@@ -122,7 +129,7 @@ void ofApp::update(){
 
         }
     }
-    
+    ofSetWindowTitle(ofToString(videoCounter));
     if(videoPlayer.isPlaying())
     {
         videoPlayer.update();

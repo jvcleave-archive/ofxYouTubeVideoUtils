@@ -1,6 +1,6 @@
 #pragma once
 #include "ofMain.h"
-#include "YouTubeVideoInfo.h"
+#include "YouTubeVideo.h"
 #include "YouTubeFormatCollection.h"
 
 #ifdef TARGET_OSX
@@ -61,8 +61,8 @@ class YouTubeDownloadEventData
 class YouTubeDownloadEventListener
 {
     public:
-        virtual void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e) = 0;
-        virtual void onYouTubeDownloadEventError(YouTubeDownloadEventData& e) = 0;
+        virtual void onYouTubeDownloadEventComplete(YouTubeDownloadEventData&) = 0;
+        virtual void onYouTubeDownloadEventError(YouTubeDownloadEventData&) = 0;
 };
 
 class ofxYouTubeVideoUtils
@@ -70,8 +70,8 @@ class ofxYouTubeVideoUtils
     public:
     
     
-        vector<YouTubeVideoInfo> infoCollection;
-        vector<YouTubeVideoInfo> failedCollection;
+        vector<YouTubeVideo> infoCollection;
+        vector<YouTubeVideo> failedCollection;
     
         vector<YouTubeFormat> formatCollection;
         vector<YouTubeDownloadRequest> downloadRequests;
@@ -79,33 +79,34 @@ class ofxYouTubeVideoUtils
         ofxYouTubeVideoUtils();
         ~ofxYouTubeVideoUtils();
     
-        YouTubeVideoInfo loadVideoInfo(string youTubeVideoID);
+        YouTubeVideo loadVideoInfo(string youTubeVideoID);
         bool downloadVideo(YouTubeVideoURL videoURL,
                            bool doAsync=false,
                            bool doOverwriteExisting=false,
                            string customPath="");
 
-        void downloadAllImages(YouTubeVideoInfo& videoInfo);
+        void downloadAllImages(YouTubeVideo&);
 
         YouTubeFormat getFormat(int itag);
-        void findiTagsForVideoResolution(vector<YouTubeFormat>& formats,
-                                         YouTubeFormat::VIDEO_RESOLUTION videoResolution);
+        vector<YouTubeFormat>  findiTagsForVideoResolution(YouTubeFormat::VIDEO_RESOLUTION);
     
-        void addListener(YouTubeDownloadEventListener* listener_);
-        void removeListener(YouTubeDownloadEventListener* listener_);
+        void addListener(YouTubeDownloadEventListener*);
+        void removeListener(YouTubeDownloadEventListener*);
         void print(string youTubeVideoID);
         vector<string> getVideoIDsFromPlaylist(string playlistID);
+    
         static bool GROUP_DOWNLOADS_INTO_FOLDERS;
+        static bool USE_PRETTY_NAMES;
 
     private:
         YouTubeDownloadEventListener* listener;
     
         string createFileName(YouTubeVideoURL& videoURL);
-        void broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData);
-        void broadcastDownloadEventError(YouTubeDownloadEventData& eventData);
+        void broadcastDownloadEventComplete(YouTubeDownloadEventData&);
+        void broadcastDownloadEventError(YouTubeDownloadEventData&);
     
         void handleRedirect(YouTubeDownloadRequest downloadRequest, string redirectedURL, string filePath);
-        void onVideoHTTPResponse(ofHttpResponse& response);
+        void onVideoHTTPResponse(ofHttpResponse&);
     
     
 };
