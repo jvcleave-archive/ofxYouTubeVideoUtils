@@ -1,5 +1,6 @@
 example*/bin/data
 example*/bin/libs/
+example*/bin/*
 !example*/bin/data/.gitkeep
 
 
