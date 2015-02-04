@@ -6,7 +6,7 @@
 #include "ofxYouTubeVideoUtils.h"
 
 
-class ofApp : public ofBaseApp, public ofxOMXPlayerListener, public KeyListener, public YouTubeDownloadEventListener{
+class ofApp : public ofBaseApp, public ofxOMXPlayerListener, public KeyListener{
 	public:
 		void setup();
 		void update();
@@ -19,11 +19,7 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener, public KeyListener,
         //ofxOMXPlayerListener
         void onVideoEnd(ofxOMXPlayerListenerEventData& e);
         void onVideoLoop(ofxOMXPlayerListenerEventData& e){ /*empty*/ };
-        
-        //YouTubeDownloadEventListener
-        void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e);
-        void onYouTubeDownloadEventError(YouTubeDownloadEventData& e);
-        
+    
         vector<string> videoIDs;
         int videoCounter;
         

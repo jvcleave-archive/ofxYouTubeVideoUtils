@@ -43,7 +43,7 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
         if(!didTryDecodeAgain)
         {
             didTryDecodeAgain = true;
-            ofLogVerbose(__func__) << "itag error?";
+            //ofLogVerbose(__func__) << "itag error?";
             string decodedRejectedURL;
             Poco::URI::decode(url_, decodedRejectedURL);
             success = setup(videoID, metadata, decodedRejectedURL);
@@ -54,10 +54,10 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
             success = setup(videoID, metadata, url, "?");
             if(!success)
             {
-                ofLogVerbose() << "WTF";
+                //ofLogVerbose() << "WTF";
             }else
             {
-                ofLogVerbose() << "LAST DITCH EFFORT WORKED WITH url: " << url;
+                //ofLogVerbose() << "LAST DITCH EFFORT WORKED WITH url: " << url;
             }
         }
         

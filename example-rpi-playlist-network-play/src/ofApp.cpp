@@ -12,18 +12,6 @@ void ofApp::onCharacterReceived(KeyListenerEventData& e)
 {
     keyPressed((int)e.character);
 }
-
-void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
-{
-    ofLogVerbose(__func__) << "";
-}
-
-void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
-{
-    ofLogVerbose(__func__) << e.message;
-}
-
-
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -31,10 +19,7 @@ void ofApp::setup()
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetLogLevel("ofThread", OF_LOG_SILENT);
     
-    ofxYouTubeVideoUtils::USE_PRETTY_NAMES              =   true; //default: false
-    ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS  =   true; //default: false
     
-    youTubeUtils.addListener(this);
     consoleListener.setup(this);
     doLoadNextMovie = false;
     
@@ -117,6 +102,12 @@ void ofApp::update()
 void ofApp::draw()
 {
     omxPlayer.draw(0, 0, ofGetWidth(), ofGetHeight());
+    stringstream info;
+    info <<  "APP FPS: " << ofGetFrameRate() << "\n";
+    info << youTubeVideoURLs[videoCounter].metadata.toString() << "\n";
+    
+    
+    ofDrawBitmapStringHighlight(info.str(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
 }
 
 //--------------------------------------------------------------

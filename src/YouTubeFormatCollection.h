@@ -25,9 +25,7 @@ public:
             {
                 return formatCollection[i];
             }
-        }
-        ofLogVerbose() << "format.itag: " << format.itag;
-        
+        }        
         return format;
     }
 

@@ -50,7 +50,7 @@ bool YouTubeVideo::fetchInfo(string videoID_)
                     {
                         if (value.find(",") != string::npos)
                         {
-                            ofLogVerbose() << "found buried URL married with another key/value pair";
+                            //ofLogVerbose() << "found buried URL married with another key/value pair";
                             vector<string> pieces = ofSplitString(value, ",");
                             for(size_t p=0; p<pieces.size(); p++)
                             {
@@ -89,7 +89,6 @@ bool YouTubeVideo::fetchInfo(string videoID_)
                 if(key == "itag")
                 {
                     int intTag = ofToInt(value);
-                    ofLogVerbose(__func__) << "intTag: " << intTag;
                     itags.push_back(intTag);
                     
                 }
@@ -140,7 +139,7 @@ bool YouTubeVideo::fetchInfo(string videoID_)
                 {
                     if(value == "fail")
                     {
-                        ofLogVerbose(__func__) << "VIDEO WILL BE UNAVAILABLE";
+                        ofLogWarning(__func__) << "FAIL WITH videoID: " << videoID << " WILL BE UNAVAILABLE";
                         isAvailable = false;
                     }
                 }
@@ -155,22 +154,24 @@ bool YouTubeVideo::fetchInfo(string videoID_)
         }
         for(size_t i=0; i<urls.size(); i++)
         {
-            //ofLogVerbose(__func__) << i <<  " url: " << urls[i];
             YouTubeVideoURL youtubeVideoURL;
             bool didSetup = youtubeVideoURL.setup(videoID, metadata, urls[i]);
             if(didSetup)
             {
-                ofLogVerbose(__func__) << "videoID: " << videoID << " youtubeVideoURL.format.itag: " << youtubeVideoURL.format.itag;
                 videoURLs.push_back(youtubeVideoURL);
                 formats.push_back(youtubeVideoURL.format);
             }else
             {
-                ofLogError(__func__) << videoID <<" URL FAILED: url" << youtubeVideoURL.url;
+                if(youtubeVideoURL.url.find("www.youtube.com/video") != string::npos)
+                {
+                    ofLogError(__func__) << videoID << " URL FAILED: url" << youtubeVideoURL.url;
+                }
+                
             }
         }
         if(videoURLs.empty() && failReason.empty())
         {
-            ofLogVerbose() << "EMPTY VIDEO URLS";
+            ofLogWarning(__func__) << videoID <<  " HAS NO VIDEO URLS";
             if(!fallback_hosts.empty())
             {
                 /*for(size_t i=0; i<fallback_hosts.size(); i++)
@@ -242,7 +243,6 @@ vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<YouTubeFormat>&
             }
             
         }
-        ofLogVerbose(__func__) << info.str();
     }
     return preferredURLs;
 }
@@ -280,10 +280,10 @@ vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<int>& preferred
         
         if(itags.empty())
         {
-            ofLogVerbose(__func__) << "NO TAGS FOR title: " << metadata.title << " videoID: "<< videoID;
+            ofLogWarning(__func__) << "NO TAGS FOR title: " << metadata.title << " videoID: "<< videoID;
         }else
         {
-            ofLogVerbose(__func__) << "NO PREFFERED TAGS " << preferredTagLog.str() << " AVAILABLE FOR title: " << metadata.title << " videoID: "<< videoID << " AVAILABLE FORMATS ARE: \n" << itagLog.str();
+            ofLogWarning(__func__) << "NO PREFFERED TAGS " << preferredTagLog.str() << " AVAILABLE FOR title: " << metadata.title << " videoID: "<< videoID << " AVAILABLE FORMATS ARE: \n" << itagLog.str();
         }
     }
     return preferredURLs;
@@ -383,14 +383,12 @@ void YouTubeVideo::writeToLog(string logPath)
     }
     ss << "\n META SECTION \n";
     
-    ss << "videoID:" << videoID << "\n";
-    ss << "author:" << metadata.author << "\n";
-    ss << "title:" << metadata.title << "\n";
-    ss << "lengthInSeconds:" << metadata.lengthInSeconds << "\n";
-
+    ss << metadata.toString() << "\n";
+    
+    ss << "\n iTAGS SECTION \n";
     for(size_t i=0; i<itags.size(); i++)
     {
-        ofLogVerbose(__func__)<< " itag : " << itags[i];
+        ss << itags[i] << "\n";
     }
     string info = toString();
     info += ss.str();
