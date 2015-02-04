@@ -1,3 +1,7 @@
+example*/bin/data
+!example*/bin/data/.gitkeep
+
+
 #########################
 # openFrameworks patterns
 #########################

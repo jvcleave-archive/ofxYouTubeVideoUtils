@@ -162,9 +162,10 @@ bool YouTubeVideo::fetchInfo(string videoID_)
                 formats.push_back(youtubeVideoURL.format);
             }else
             {
-                if(youtubeVideoURL.url.find("www.youtube.com/video") != string::npos)
+                bool isRegularLink = ofIsStringInString(urls[i], "www.youtube.com");
+                if(!isRegularLink)
                 {
-                    ofLogError(__func__) << " URL FAIL url: " << youtubeVideoURL.url;
+                    ofLogError(__func__) << " URL FAIL url: " << urls[i];
                 }
                 
             }
@@ -332,7 +333,7 @@ YouTubeFormat YouTubeVideo::getLargestResolutionVideo(int streamType,
     YouTubeFormat bestFormat;
     for(size_t i=0; i<formats.size(); i++)
     {
-        YouTubeFormat& currentFormat = formats[i];
+        YouTubeFormat currentFormat = formats[i];
         
         if(highestResolution<currentFormat.videoResolution)
         {

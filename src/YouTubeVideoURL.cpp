@@ -63,6 +63,10 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
         }
         
     }
+    if(!success)
+    {
+        ofLogError(__func__) << "";
+    }
         return success;
 }
 
