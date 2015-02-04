@@ -17,7 +17,7 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
         //YouTubeDownloadEventListener
         void onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e);
         void onYouTubeDownloadError(YouTubeDownloadEventData& e);
-		void onYouTubeAllVideosDownloadComplete(){};
+		void onYouTubeAllVideosDownloadComplete();
     
 		vector<string> videoIDs;
 		int videoCounter;

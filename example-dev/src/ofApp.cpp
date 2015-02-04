@@ -24,7 +24,10 @@ void ofApp::onYouTubeDownloadError(YouTubeDownloadEventData& e)
     info << "\n" <<	"filePath: "    << e.downloadRequest.filePath;
 }
 
-
+void ofApp::onYouTubeAllVideosDownloadComplete()
+{
+    ofLogVerbose(__FUNCTION__) << "!";
+}
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -34,7 +37,7 @@ void ofApp::setup()
 	ofSetLogLevel("ofThread", OF_LOG_ERROR);
     youTubeUtils.addListener(this);
     
-    string videoID = "vicRhwBC0hE";
+    string videoID = "1EROmqidZQc";
     ofxYouTubeVideoUtils::USE_PRETTY_NAMES              =   true; //default: false
     ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS  =   true; //default: false
     

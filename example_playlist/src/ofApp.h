@@ -22,7 +22,7 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
     
     void onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e);
     void onYouTubeDownloadError(YouTubeDownloadEventData& e);
-    void onYouTubeAllVideosDownloadComplete(){};
+    void onYouTubeAllVideosDownloadComplete();
     
     ofxYouTubeVideoUtils youTubeUtils;
     

@@ -20,6 +20,12 @@ void ofApp::onYouTubeDownloadError(YouTubeDownloadEventData& e)
     info << "\n" <<	"filePath: "    << e.downloadRequest.filePath;
 }
 
+
+void ofApp::onYouTubeAllVideosDownloadComplete()
+{
+    ofLogVerbose(__FUNCTION__) << "!";
+}
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     
