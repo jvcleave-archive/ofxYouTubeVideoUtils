@@ -3,10 +3,10 @@
 
 void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
 {
-    ofLogVerbose(__func__) << "COMPLETED";
-    downloadInfo <<"COMPLETED\n" <<    "url: "        << e.downloadRequest.url;
-    downloadInfo <<"\n" <<    "videoID: " << e.downloadRequest.videoID;
-    downloadInfo <<"\n" <<    "filePath: "        << e.downloadRequest.filePath;
+    downloadInfo    <<  "COMPLETED\n";
+    downloadInfo    <<"\n" <<   "url: "         << e.downloadRequest.url;
+    downloadInfo    <<"\n" <<   "videoID: "     << e.downloadRequest.videoID;
+    downloadInfo    <<"\n" <<   "filePath: "    << e.downloadRequest.filePath;
     
     
     downloadedYouTubeVideoURLs.push_back(e.downloadRequest.videoURL);
@@ -14,11 +14,11 @@ void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
 
 void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
 {
-    ofLogVerbose(__func__) << e.message;
     
-    downloadInfo <<"FAILED\n" <<    "url: "        << e.downloadRequest.url;
-    downloadInfo <<"\n" <<    "videoID: " << e.downloadRequest.videoID;
-    downloadInfo <<"\n" <<    "filePath: "        << e.downloadRequest.filePath;
+    downloadInfo    <<  "FAILED\n"
+    downloadInfo    <<  "\n"    <<  "url: "         << e.downloadRequest.url;
+    downloadInfo    <<  "\n"    <<  "videoID: "     << e.downloadRequest.videoID;
+    downloadInfo    <<  "\n"    <<  "filePath: "    << e.downloadRequest.filePath;
 }
 
 
@@ -42,9 +42,9 @@ void ofApp::setup()
     doLoadNextMovie = false;
     videoCounter = 0;
     
-    string test_list = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
+    string playlistID = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
     
-    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(test_list);
+    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
     
     //format 18 is good for the RPi
     vector<int> selectedFormats; //getPreferredFormats takes a vector

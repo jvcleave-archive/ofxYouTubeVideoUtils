@@ -8,10 +8,6 @@ void ofApp::onVideoEnd(ofxOMXPlayerListenerEventData& e)
 }
 
 
-void ofApp::onCharacterReceived(KeyListenerEventData& e)
-{
-    keyPressed((int)e.character);
-}
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -24,9 +20,9 @@ void ofApp::setup()
     doLoadNextMovie = false;
     
     videoCounter = 0;
-    string test_list = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
+    string playlistID = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
     
-    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(test_list);
+    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
     
     
     //format 18 is good for the RPi
@@ -142,4 +138,9 @@ void ofApp::keyPressed(int key){
         }
     }
 
+}
+
+void ofApp::onCharacterReceived(KeyListenerEventData& e)
+{
+    keyPressed((int)e.character);
 }
