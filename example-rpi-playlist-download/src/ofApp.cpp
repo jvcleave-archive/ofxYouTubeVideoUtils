@@ -42,7 +42,7 @@ void ofApp::setup()
     doLoadNextMovie = false;
     videoCounter = 0;
     
-    string playlistID = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
+    string playlistID = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi"; 
     
     videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
     
