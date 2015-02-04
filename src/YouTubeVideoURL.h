@@ -13,11 +13,20 @@ public:
     YouTubeVideoMetadata metadata;
     YouTubeFormat format;
     string localFilePath;
+
+    
+    YouTubeVideoURL();
+    bool setup(string videoID_,
+               YouTubeVideoMetadata metadata_,
+               string url_,
+               string delimiter="&");
+    void print();
+    string toString();
+    
+private:
     map<string, string> valueMap;
     vector<string> valueMapNames;
-    YouTubeVideoURL();
-    bool setup(string videoID_, YouTubeVideoMetadata metadata_, string url_, string delimiter="&");
     bool didTryDecodeAgain;
     bool triedLastTime;
-    void print();
+    
 };

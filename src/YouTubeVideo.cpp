@@ -162,11 +162,11 @@ bool YouTubeVideo::fetchInfo(string videoID_)
                 formats.push_back(youtubeVideoURL.format);
             }else
             {
-                bool isRegularLink = ofIsStringInString(urls[i], "www.youtube.com");
+                /*bool isRegularLink = ofIsStringInString(urls[i], "www.youtube.com");
                 if(!isRegularLink)
                 {
                     ofLogError(__func__) << " URL FAIL url: " << urls[i];
-                }
+                }*/
                 
             }
         }

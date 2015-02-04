@@ -63,14 +63,22 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
         }
         
     }
+    /*
     if(!success)
     {
-        ofLogError(__func__) << "";
+        //likely url is like http://www.youtube.com/video/K1vXEDEAYg0
+        ofLogError(__func__) << "videoID_: " << videoID_ << " url_: " << url_;
     }
-        return success;
+    */
+    return success;
 }
 
 void YouTubeVideoURL::print()
+{
+    ofLogVerbose(__func__) << toString();
+}
+
+string YouTubeVideoURL::toString()
 {
     stringstream info;
     info << "videoID: " << videoID << "\n";
@@ -83,5 +91,5 @@ void YouTubeVideoURL::print()
     {
         info << valueMapNames[i] << " : " << valueMap[valueMapNames[i]] << "\n";
     }
-    ofLogVerbose(__func__) << info.str();
+    return info.str();
 }

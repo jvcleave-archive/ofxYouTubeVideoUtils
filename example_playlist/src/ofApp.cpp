@@ -28,9 +28,9 @@ void ofApp::setup(){
     youTubeUtils.addListener(this);
     doLoadNextMovie = false;
     videoCounter = 0;
-    string test_list = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
+    string playlistID = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
     
-    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(test_list);
+    videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
     
     for(size_t i=0; i<videoIDs.size(); i++)
     {
