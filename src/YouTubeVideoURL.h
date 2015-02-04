@@ -12,9 +12,9 @@ public:
     int itag;
     YouTubeVideoMetadata metadata;
     YouTubeFormat format;
+    string localFilePath;
     map<string, string> valueMap;
     vector<string> valueMapNames;
-    
     YouTubeVideoURL();
     bool setup(string videoID_, YouTubeVideoMetadata metadata_, string url_, string delimiter="&");
     bool didTryDecodeAgain;

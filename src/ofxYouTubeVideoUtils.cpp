@@ -171,6 +171,7 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
     downloadRequest.url = videoURL.url;
     downloadRequest.videoID = videoURL.videoID;
     downloadRequest.filePath = fileName;
+    downloadRequest.videoURL.localFilePath = fileName; //TODO - might be abusing videoURL
     
     ofFile file(fileName);
     if(file.exists() && file.getSize()==0)
