@@ -1,4 +1,5 @@
 #pragma once
+
 #include "YouTubeFormat.h"
 
 class YouTubeFormatCollection

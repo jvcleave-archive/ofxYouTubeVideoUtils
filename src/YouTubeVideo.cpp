@@ -164,7 +164,7 @@ bool YouTubeVideo::fetchInfo(string videoID_)
             {
                 if(youtubeVideoURL.url.find("www.youtube.com/video") != string::npos)
                 {
-                    ofLogError(__func__) << videoID << " URL FAILED: url" << youtubeVideoURL.url;
+                    ofLogError(__func__) << " URL FAIL url: " << youtubeVideoURL.url;
                 }
                 
             }

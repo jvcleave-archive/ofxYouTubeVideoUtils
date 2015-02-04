@@ -1,6 +1,5 @@
 #include "YouTubeVideo.h"
 
-
 YouTubeVideoMetadata::YouTubeVideoMetadata()
 {
     videoID = "";
