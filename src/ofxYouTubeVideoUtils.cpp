@@ -91,12 +91,39 @@ YouTubeVideo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
     return videoInfo;
 }
 
+void replaceCharacter(string& dirtyString, char dirtyChar, char replacement) {
+    for (size_t i = 0; i < dirtyString.length(); ++i) 
+    {
+        if (dirtyString[i] == dirtyChar)
+        {
+            dirtyString[i] = replacement;
+        }
+    }
+}
+
+void sanitizeString(string& dirtyString)
+{
+    /*
+     characters ( ) were causing bash to not be able to compile
+     
+     /bin/sh: 1: Syntax error: "(" unexpected
+    
+     might be more to replace
+     */
+    
+    replaceCharacter(dirtyString, '(', '_');
+    replaceCharacter(dirtyString, ')', '_');
+    replaceCharacter(dirtyString, ' ', '_');
+                     
+}
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default: false
 {
     stringstream name;
     if(USE_PRETTY_NAMES)
     {
-        name << videoURL.metadata.title;
+        string tmpTitle = videoURL.metadata.title;
+        sanitizeString(tmpTitle);
+        name << tmpTitle;
         name << "_";
         name << videoURL.videoID;
         name << "_";
@@ -126,6 +153,7 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
     if(USE_PRETTY_NAMES)
     {
         folderName = videoURL.metadata.title;
+        sanitizeString(folderName);
     }else
     {
         folderName = videoURL.videoID;
@@ -252,6 +280,7 @@ void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideo& videoInfo)
         if(USE_PRETTY_NAMES)
         {
             title = videoInfo.metadata.title;
+            sanitizeString(title);
         }else
         {
             title = videoInfo.videoID;

@@ -15,7 +15,7 @@ void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
 void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
 {
     
-    downloadInfo    <<  "FAILED\n"
+    downloadInfo    <<  "FAILED\n";
     downloadInfo    <<  "\n"    <<  "url: "         << e.downloadRequest.url;
     downloadInfo    <<  "\n"    <<  "videoID: "     << e.downloadRequest.videoID;
     downloadInfo    <<  "\n"    <<  "filePath: "    << e.downloadRequest.filePath;
@@ -46,9 +46,7 @@ void ofApp::setup()
     
     videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
     
-    //format 18 is good for the RPi
-    vector<int> selectedFormats; //getPreferredFormats takes a vector
-    selectedFormats.push_back(18);
+    
     
     
     for(size_t i=0; i<videoIDs.size(); i++)
@@ -56,6 +54,10 @@ void ofApp::setup()
         YouTubeVideo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
         if(videoInfo.isAvailable)
         {
+            //format 22 (720P) and format 18 (360P) is good for the RPi
+            vector<int> selectedFormats; //getPreferredFormats takes a vector
+            selectedFormats.push_back(22);
+            selectedFormats.push_back(18);
             
             //youTubeUtils.downloadAllImages(videoInfo);
             vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getPreferredFormats(selectedFormats);

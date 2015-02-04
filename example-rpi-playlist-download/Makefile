@@ -1,3 +1,4 @@
+MAKEFILE_DEBUG=1
 # Attempt to load a config.make file.
 # If none is found, project defaults in config.project.make will be used.
 ifneq ($(wildcard config.make),)
