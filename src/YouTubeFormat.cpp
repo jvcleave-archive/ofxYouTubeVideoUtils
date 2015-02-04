@@ -253,7 +253,7 @@ Non-DASH
 |   34 | FLV              | 360P            | H264          | Main         | 0.5               | AAC           | 128               |
 |   35 | FLV              | 480P            | H264          | Main         | 0.8-1             | AAC           | 128               |
 |   36 | 3GP              | 240P            | MPEG4_Visual  | Simple       | 0.175             | AAC           | 32                |
-|   37 | MP4              | 1080P           | H264          | High         | 3‚Äì5.9             | AAC           | 192               |
+|   37 | MP4              | 1080P           | H264          | High         | 35.9             | AAC           | 192               |
 |   38 | MP4              | 3072p           | H264          | High         | 3.5-5             | AAC           | 192               |
 |   43 | WebM             | 360P            | VP8           | NA           | 0.5               | Vorbis        | 128               |
 |   44 | WebM             | 480P            | VP8           | NA           | 1                 | Vorbis        | 128               |

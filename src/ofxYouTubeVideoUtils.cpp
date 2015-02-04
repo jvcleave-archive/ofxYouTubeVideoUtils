@@ -50,7 +50,7 @@ vector<string> ofxYouTubeVideoUtils::getVideoIDsFromPlaylist(string playlistID)
         
     }else
     {
-        ofLogVerbose() << "FAIL: " << response.status;
+        ofLogError(__func__) << "FAIL response.status: " << response.status;
     }
     return videoIDs;
 }
@@ -77,7 +77,6 @@ vector<YouTubeFormat> ofxYouTubeVideoUtils::findiTagsForVideoResolution(YouTubeF
 
 YouTubeVideo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
 {
-    ofLogVerbose(__func__) << "LOADING youTubeVideoID: " << youTubeVideoID;
     YouTubeVideo videoInfo;
     bool didLoad = videoInfo.fetchInfo(youTubeVideoID);
 
@@ -112,7 +111,6 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
 
     
     YouTubeFormat& format = videoURL.format;
-    ofLogVerbose(__func__) << "VIDEO_RESOLUTION: " << format.videoResolution;
     switch (format.container)
     {
         case YouTubeFormat::CONTAINER_3GP:  { name << ".3gp";   break;  }
@@ -145,8 +143,6 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
         fileName = ofToDataPath(name.str(), true);
     }
     
-    ofLogVerbose(__func__) << "fileName: " << fileName;
-
     return fileName;
 }
 
@@ -175,17 +171,18 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
     downloadRequest.url = videoURL.url;
     downloadRequest.videoID = videoURL.videoID;
     downloadRequest.filePath = fileName;
+    downloadRequest.videoURL.localFilePath = fileName; //TODO - might be abusing videoURL
     
     ofFile file(fileName);
     if(file.exists() && file.getSize()==0)
     {
-        info << "fileName: " << fileName << " EXISTS - BUT IS 0 bytes, WILL OVERWRITE";
+        ofLogWarning(__func__) << "fileName: " << fileName << " EXISTS - BUT IS 0 bytes, WILL OVERWRITE";
         doOverwriteExisting = true;
     }
     
     if(file.exists() && !doOverwriteExisting)
     {
-        info << "fileName: " << fileName << " EXISTS - NOT OVERWRITING";
+        ofLogWarning(__func__) << "fileName: " << fileName << " EXISTS - NOT OVERWRITING";
         if(listener)
         {
             YouTubeDownloadEventData eventData(downloadRequest, (void *)this, fileName+ " EXISTS - DID NOT OVERWRITE");
@@ -195,8 +192,6 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
     }else
     {
         
-        info << "DOWNLOADING TO: " << fileName;
-        info << " ASYNC: " << doAsync;
         
         if (doAsync)
         {
@@ -205,18 +200,16 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
             downloadRequests.push_back(downloadRequest);
             
             int queueID = ofSaveURLAsync(downloadRequest.url, fileName);
-            info << " queueID: " << queueID;
             success = true;
         }else
         {
             downloadRequest.isAsync = false;
             
             ofHttpResponse httpResponse = ofSaveURLTo(videoURL.url, fileName);
-            info << " response: " << httpResponse.status;
             
             if(httpResponse.status > 200)
             {
-                ofLogVerbose() << "httpResponse.status: " << httpResponse.status;
+                //ofLogVerbose() << "httpResponse.status: " << httpResponse.status;
                 //handleRedirect(httpResponse);
             }else
             {
@@ -227,7 +220,7 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
                     success = true;
                 }else
                 {
-                    info << " DOWNLOAD FAILED with response " << httpResponse.status;
+                    ofLogError(__func__) << " DOWNLOAD FAILED with response " << httpResponse.status;
                 }
             }
             YouTubeDownloadEventData eventData(downloadRequest, httpResponse, (void *)this);
@@ -242,8 +235,6 @@ bool ofxYouTubeVideoUtils::downloadVideo(YouTubeVideoURL videoURL,
         }
         
     }
-    ofLogVerbose(__func__) << info.str();
-    
     return success;
 
 }
@@ -289,7 +280,6 @@ void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideo& videoInfo)
 
 void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
 {
-    //ofLogVerbose(__func__) << "response.request.url: " << response.request.url;
     
     for (size_t i=0; i<downloadRequests.size(); i++)
     {
@@ -301,7 +291,7 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                 {
                     if(response.status == 302)
                     {
-                        ofLogVerbose(__func__) << "302 :////////////////// " << response.status;
+                        ofLogError(__func__) << "302 RECEIVED - WILL TRY TO GET REDIRECT " << response.status;
                         handleRedirect(downloadRequests[i], response.request.url, response.request.name);
                     }
                     if(listener)
@@ -311,7 +301,7 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
                     }
                 }else
                 {
-                    ofLogVerbose(__func__) << response.status;
+                    //ofLogVerbose(__func__) << response.status;
                     //handleRedirect(response);
 
                 }
@@ -386,112 +376,10 @@ void ofxYouTubeVideoUtils::print(string videoID)
 ofxYouTubeVideoUtils::~ofxYouTubeVideoUtils()
 {
     ofRemoveListener(ofURLResponseEvent(), this, &ofxYouTubeVideoUtils::onVideoHTTPResponse);
-    ofLogVerbose(__func__) << "downloadRequests.empty: " << downloadRequests.empty();
     if(!downloadRequests.empty())
     {
         ofStopURLLoader();
         ofRemoveAllURLRequests();
     }
 }
-
-
-
-
-
-#if 0
-
-//may need for redirects
-
-#include "Poco/Net/HTTPSession.h"
-#include "Poco/Net/HTTPClientSession.h"
-#include "Poco/Net/HTTPSClientSession.h"
-#include "Poco/Net/HTTPRequest.h"
-#include "Poco/Net/HTTPResponse.h"
-#include "Poco/StreamCopier.h"
-#include "Poco/Path.h"
-#include "Poco/URI.h"
-#include "Poco/Exception.h"
-#include "Poco/URIStreamOpener.h"
-#include "Poco/Net/HTTPStreamFactory.h"
-#include "Poco/Net/HTTPSStreamFactory.h"
-#include "Poco/Net/SSLManager.h"
-#include "Poco/Net/KeyConsoleHandler.h"
-#include "Poco/Net/ConsoleCertificateHandler.h"
-
-using namespace Poco::Net;
-
-using namespace Poco;
-void ofxYouTubeVideoUtils::handleRedirect(string redirectedURL, string filePath)
-{
-   
-
-    ofLogVerbose(__func__) << "redirectedURL" << redirectedURL;
-    
-    ofHttpRequest request = httpResponse.request;
-    ofHttpResponse result;
-        try {
-            URI uri(request.url);
-            std::string path(uri.getPathAndQuery());
-            if (path.empty()) path = "/";
-            
-            Poco::Net::HTTPRequest req(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
-            HTTPResponse res;
-            ofPtr<HTTPSession> session;
-            istream * rs;
-            if(uri.getScheme()=="https"){
-                //const Poco::Net::Context::Ptr context( new Poco::Net::Context( Poco::Net::Context::CLIENT_USE, "", "", "rootcert.pem" ) );
-                HTTPSClientSession * httpsSession = new HTTPSClientSession(uri.getHost(), uri.getPort());//,context);
-                httpsSession->setTimeout(Poco::Timespan(20,0));
-                httpsSession->sendRequest(req);
-                rs = &httpsSession->receiveResponse(res);
-                session = ofPtr<HTTPSession>(httpsSession);
-            }else{
-                HTTPClientSession * httpSession = new HTTPClientSession(uri.getHost(), uri.getPort());
-                httpSession->setTimeout(Poco::Timespan(20,0));
-                httpSession->sendRequest(req);
-                rs = &httpSession->receiveResponse(res);
-                session = ofPtr<HTTPSession>(httpSession);
-            }
-            if(!request.saveTo){
-                result = ofHttpResponse(request,*rs,res.getStatus(),res.getReason());
-            }else{
-                ofFile saveTo(request.name,ofFile::WriteOnly,true);
-                char aux_buffer[1024];
-                rs->read(aux_buffer, 1024);
-                std::streamsize n = rs->gcount();
-                while (n > 0){
-                    // we resize to size+1 initialized to 0 to have a 0 at the end for strings
-                    saveTo.write(aux_buffer,n);
-                    if (rs->good()){
-                        rs->read(aux_buffer, 1024);
-                        n = rs->gcount();
-                    }
-                    else n = 0;
-                }
-                result = ofHttpResponse(request,res.getStatus(),res.getReason());
-            }
-            
-        } catch (const Exception& exc) {
-            ofLogError(__func__) << "handleRequest(): "+ exc.displayText();
-            
-            result = ofHttpResponse(request,-1,exc.displayText());
-            
-        } catch (...) {
-            result = ofHttpResponse(request,-1,"ofURLFileLoader: fatal error, couldn't catch Exception");
-        }
-        
-        result = ofHttpResponse(request,-1,"ofURLFileLoader: fatal error, couldn't catch Exception");
-    
-    if(result.status == 302)
-    {
-        ofLogVerbose() << "302 AGAIN: " << result.status;
-    }else
-    {
-        ofLogVerbose() << "FINE: " << result.status;
-    }
-    return result;
-    
-
-}
-#endif
 

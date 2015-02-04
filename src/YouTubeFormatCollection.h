@@ -1,4 +1,5 @@
 #pragma once
+
 #include "YouTubeFormat.h"
 
 class YouTubeFormatCollection
@@ -25,9 +26,7 @@ public:
             {
                 return formatCollection[i];
             }
-        }
-        ofLogVerbose() << "format.itag: " << format.itag;
-        
+        }        
         return format;
     }
 

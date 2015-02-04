@@ -5,6 +5,7 @@ YouTubeVideoURL::YouTubeVideoURL()
 {
     videoID = "";
     url = "";
+    localFilePath = "";
     itag = -1;
     didTryDecodeAgain = false;
     triedLastTime = false;
@@ -43,7 +44,7 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
         if(!didTryDecodeAgain)
         {
             didTryDecodeAgain = true;
-            ofLogVerbose(__func__) << "itag error?";
+            //ofLogVerbose(__func__) << "itag error?";
             string decodedRejectedURL;
             Poco::URI::decode(url_, decodedRejectedURL);
             success = setup(videoID, metadata, decodedRejectedURL);
@@ -54,10 +55,10 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
             success = setup(videoID, metadata, url, "?");
             if(!success)
             {
-                ofLogVerbose() << "WTF";
+                //ofLogVerbose() << "WTF";
             }else
             {
-                ofLogVerbose() << "LAST DITCH EFFORT WORKED WITH url: " << url;
+                //ofLogVerbose() << "LAST DITCH EFFORT WORKED WITH url: " << url;
             }
         }
         
@@ -68,7 +69,9 @@ bool YouTubeVideoURL::setup(string videoID_, YouTubeVideoMetadata metadata_, str
 void YouTubeVideoURL::print()
 {
     stringstream info;
+    info << "videoID: " << videoID << "\n";
     info << "url: " << url << "\n";
+    info << "localFilePath: " << localFilePath << "\n";
     info << "itag: " << itag << "\n";
     
     info << "valueMap key/values START \n";

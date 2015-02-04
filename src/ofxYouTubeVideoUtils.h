@@ -1,4 +1,5 @@
 #pragma once
+
 #include "ofMain.h"
 #include "YouTubeVideo.h"
 #include "YouTubeFormatCollection.h"
@@ -6,6 +7,7 @@
 #ifdef TARGET_OSX
 #define __func__ __PRETTY_FUNCTION__
 #endif
+
 class YouTubeDownloadRequest
 {
     public:
