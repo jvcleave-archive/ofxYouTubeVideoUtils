@@ -2,7 +2,7 @@
 
 
 
-void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
+void ofApp::onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e)
 {
     info << "\n" << "COMPLETED ";
     //info << "\n" << "title: "       << e.downloadRequest.videoURL.metadata.title;
@@ -14,7 +14,7 @@ void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
     
 }
 
-void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
+void ofApp::onYouTubeDownloadError(YouTubeDownloadEventData& e)
 {
     ofLogVerbose(__func__) << e.message;
     
@@ -58,7 +58,7 @@ void ofApp::setup()
         //largestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_VIDEO_ONLY, YouTubeFormat::CONTAINER_MP4);
         //largestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::CONTAINER_MP4);
         //largestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::VIDEO_ENCODING_MPEG4);
-        vector<YouTubeFormat> selectedFormats; //getPreferredFormats takes a vector for now
+        vector<YouTubeFormat> selectedFormats; //getURLs takes a vector for now
         selectedFormats.push_back(largestFormat);
         
         
@@ -70,7 +70,7 @@ void ofApp::setup()
             
             
             
-            vector<YouTubeVideoURL> optimalVideoURLs = videoInfo.getPreferredFormats(selectedFormats);
+            vector<YouTubeVideoURL> optimalVideoURLs = videoInfo.getURLs(selectedFormats);
             ofLogVerbose(__func__) << "optimalVideoURLs SIZE: " << optimalVideoURLs.size();
             youTubeVideoURLs.insert(youTubeVideoURLs.end(), optimalVideoURLs.begin(), optimalVideoURLs.end());
         }else

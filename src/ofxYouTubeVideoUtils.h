@@ -50,6 +50,7 @@ class ofxYouTubeVideoUtils
         string createFileName(YouTubeVideoURL& videoURL);
         void broadcastDownloadEventComplete(YouTubeDownloadEventData&);
         void broadcastDownloadEventError(YouTubeDownloadEventData&);
+        void broadcastAllDownloadsComplete();
     
         void handleRedirect(YouTubeDownloadRequest downloadRequest, string redirectedURL, string filePath);
         void onVideoHTTPResponse(ofHttpResponse&);

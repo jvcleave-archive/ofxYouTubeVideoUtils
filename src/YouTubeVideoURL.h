@@ -30,3 +30,4 @@ private:
     bool triedLastTime;
     
 };
+

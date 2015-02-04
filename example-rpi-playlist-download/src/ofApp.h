@@ -28,9 +28,10 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener, public KeyListener,
         
         
     
-        //YouTubeDownloadEventListener
-        void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e);
-        void onYouTubeDownloadEventError(YouTubeDownloadEventData& e);
+        //YouTubeDownloadEventListener callbacks
+        void onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e);
+        void onYouTubeDownloadError(YouTubeDownloadEventData& e);
+        void onYouTubeAllVideosDownloadComplete();
     
         ofxYouTubeVideoUtils youTubeUtils;
     

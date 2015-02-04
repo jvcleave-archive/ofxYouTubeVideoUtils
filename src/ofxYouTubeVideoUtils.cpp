@@ -91,12 +91,39 @@ YouTubeVideo ofxYouTubeVideoUtils::loadVideoInfo(string youTubeVideoID)
     return videoInfo;
 }
 
+void replaceCharacter(string& dirtyString, char dirtyChar, char replacement) {
+    for (size_t i = 0; i < dirtyString.length(); ++i) 
+    {
+        if (dirtyString[i] == dirtyChar)
+        {
+            dirtyString[i] = replacement;
+        }
+    }
+}
+
+void sanitizeString(string& dirtyString)
+{
+    /*
+     characters ( ) were causing bash to not be able to compile
+     
+     /bin/sh: 1: Syntax error: "(" unexpected
+    
+     might be more to replace
+     */
+    
+    replaceCharacter(dirtyString, '(', '_');
+    replaceCharacter(dirtyString, ')', '_');
+    replaceCharacter(dirtyString, ' ', '_');
+    replaceCharacter(dirtyString, '"', '_');                 
+}
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default: false
 {
     stringstream name;
     if(USE_PRETTY_NAMES)
     {
-        name << videoURL.metadata.title;
+        string tmpTitle = videoURL.metadata.title;
+        sanitizeString(tmpTitle);
+        name << tmpTitle;
         name << "_";
         name << videoURL.videoID;
         name << "_";
@@ -111,21 +138,15 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
 
     
     YouTubeFormat& format = videoURL.format;
-    switch (format.container)
-    {
-        case YouTubeFormat::CONTAINER_3GP:  { name << ".3gp";   break;  }
-        case YouTubeFormat::CONTAINER_FLV:  { name << ".flv";   break;  }
-        case YouTubeFormat::CONTAINER_MP4:  { name << ".mp4";   break;  }
-        case YouTubeFormat::CONTAINER_WEBM: { name << ".webm";  break;  }
-        case YouTubeFormat::CONTAINER_TS:   { name << ".ts";  break;  }
-        default:                            { name << ".unknownformat"; }
-    }
+
+    name << format.getFileExtension();
     
     string fileName;
     string folderName;
     if(USE_PRETTY_NAMES)
     {
         folderName = videoURL.metadata.title;
+        sanitizeString(folderName);
     }else
     {
         folderName = videoURL.videoID;
@@ -252,6 +273,7 @@ void ofxYouTubeVideoUtils::downloadAllImages(YouTubeVideo& videoInfo)
         if(USE_PRETTY_NAMES)
         {
             title = videoInfo.metadata.title;
+            sanitizeString(title);
         }else
         {
             title = videoInfo.videoID;
@@ -321,7 +343,7 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
     }
     if (downloadRequests.empty())
     {
-        ofLogVerbose(__func__) << "ALL DOWNLOADS COMPLETE";
+        broadcastAllDownloadsComplete();
     }
 }
 
@@ -338,13 +360,19 @@ void ofxYouTubeVideoUtils::handleRedirect(YouTubeDownloadRequest downloadRequest
 void ofxYouTubeVideoUtils::broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData)
 {
     if(!listener) return;
-    listener->onYouTubeDownloadEventComplete(eventData);
+    listener->onYouTubeVideoDownloadComplete(eventData);
 }
 
 void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData& eventData)
 {
     if(!listener) return;
-    listener->onYouTubeDownloadEventError(eventData);
+    listener->onYouTubeDownloadError(eventData);
+}
+
+void ofxYouTubeVideoUtils::broadcastAllDownloadsComplete()
+{
+    if(!listener) return;
+    listener->onYouTubeAllVideosDownloadComplete();
 }
 
 

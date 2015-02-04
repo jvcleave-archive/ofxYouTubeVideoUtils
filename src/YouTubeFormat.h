@@ -103,7 +103,7 @@ public:
     static string videoEncodingToString(VIDEO_ENCODING);
     static string videoProfileToString(VIDEO_PROFILE);
     static string audioEncodingToString(AUDIO_ENCODING);
-
+    string getFileExtension();
     
 
 };

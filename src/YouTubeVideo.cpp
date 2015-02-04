@@ -206,7 +206,7 @@ bool YouTubeVideo::fetchInfo(string videoID_)
     return wasSuccessful;
 }
 
-vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<YouTubeFormat>& preferredFormats)
+vector<YouTubeVideoURL> YouTubeVideo::getURLs(vector<YouTubeFormat>& preferredFormats)
 {
     vector<YouTubeVideoURL> preferredURLs;
     
@@ -248,7 +248,7 @@ vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<YouTubeFormat>&
     return preferredURLs;
 }
 
-vector<YouTubeVideoURL> YouTubeVideo::getPreferredFormats(vector<int>& preferredTags)
+vector<YouTubeVideoURL> YouTubeVideo::getURLs(vector<int>& preferredTags)
 {
     vector<YouTubeVideoURL> preferredURLs;
     
