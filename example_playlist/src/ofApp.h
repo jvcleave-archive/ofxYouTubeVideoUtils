@@ -35,4 +35,5 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
     ofVideoPlayer videoPlayer;
     bool doLoadNextMovie;
     int videoCounter;
+    bool isFirstRun;
 };

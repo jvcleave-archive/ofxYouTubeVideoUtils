@@ -31,21 +31,33 @@ void ofApp::setup(){
     
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetLogLevel("ofThread", OF_LOG_SILENT);
+    
+    //Setup callbacks to download events
     youTubeUtils.addListener(this);
+    
+    isFirstRun = true;
     doLoadNextMovie = false;
     videoCounter = 0;
+    
+    //use playlist id from https://www.youtube.com/playlist?list=PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi
     string playlistID = "PLW1HSnzWuArWiwWjkkUN7-8CjoRzBuCYi";
     
+    //grab videos ids from playlist
     videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
+    
     
     for(size_t i=0; i<videoIDs.size(); i++)
     {
+        //get metadata, urls, image paths from YouTube
         YouTubeVideo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
+        
         if(videoInfo.isAvailable)
         {
-            ofxYouTubeVideoUtils::USE_PRETTY_NAMES              =   true; //default: false
-            ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS  =   true; //default: false
+            //Set up download options
+            ofxYouTubeVideoUtils::USE_PRETTY_NAMES              =   true; //default: false if false, will use videoID+_+itag. if true, video title
+            ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS  =   true; //default: put each video in it's own folder
             
+            //download the images
             youTubeUtils.downloadAllImages(videoInfo);
             //TODO - show youTubeUtils infoCollection example
             
@@ -57,9 +69,11 @@ void ofApp::setup(){
                 bool didLoadImage = image.loadImage(largestImagePath);
                 if(didLoadImage)
                 {
-                    //images.push_back(image);
+                    images.push_back(image);
                 }
             }
+            
+            
             
             
             bool doSelectedFormats = true;
@@ -68,13 +82,29 @@ void ofApp::setup(){
             if(doSelectedFormats)
             {
                 
+                /*
+                 The YouTubeVideo object "videoInfo" contains urls and what formats are available
+                 We can ask for certain formats a few different ways
+                 */
+                
+                /*
+                If you just want the largest video you can ask for it via getLargestResolutionVideo()
+                    However, it can be in a hard to playback form (webm) or may not contain audio, etc
+                    
+                    On the Mac we will want audio and video and a MP4 file, so we specify that
+                */
+                    
                 YouTubeFormat largestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
                 vector<YouTubeFormat> selectedFormats; //getURLs takes a vector
                 selectedFormats.push_back(largestFormat);
                 
                 
                 vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getURLs(selectedFormats);
-                ofLogVerbose(__func__) << "urlsForPreferredFormats SIZE: " << urlsForPreferredFormats.size();
+                
+                /*
+                 append results to our list of urls to download
+                 */
+            
                 youTubeVideoURLs.insert(youTubeVideoURLs.end(), urlsForPreferredFormats.begin(), urlsForPreferredFormats.end());
             }else
             {
@@ -93,12 +123,18 @@ void ofApp::setup(){
         info << "NO MOVIES AVAILABLE" << "\n";
     }else
     {
-        ofxYouTubeVideoUtils::GROUP_DOWNLOADS_INTO_FOLDERS   =   true; //default: false
         
         for(int i=0; i<youTubeVideoURLs.size(); i++)
         {
             bool doAsync                =   true;   //default: false
             bool doOverwriteExisting    =   false;  //default: false
+            
+            
+            /*
+             Start downloading, when a download is complete
+             onYouTubeVideoDownloadComplete will be called pushing the filepath
+             into videoPaths which is checked in update()
+             */
             
             info << "\n" << "STARTING videoID: "        << youTubeVideoURLs[i].videoID ;
             info << "\n" << "doOverwriteExisting: "     << doOverwriteExisting;
@@ -108,7 +144,7 @@ void ofApp::setup(){
     }
 }
 
-bool isFirstRun = true;
+
 //--------------------------------------------------------------
 void ofApp::update(){
     if (!videoPaths.empty())
@@ -126,15 +162,16 @@ void ofApp::update(){
                     videoCounter++;
                 }
                 
-            }else{
+            }else
+            {
                 videoCounter = 0;
             }
             videoPlayer.loadMovie(videoPaths[videoCounter]);
             videoPlayer.setLoopState(OF_LOOP_NONE);
             videoPlayer.play();
-
         }
     }
+    
     ofSetWindowTitle(ofToString(videoCounter));
     if(videoPlayer.isPlaying())
     {
