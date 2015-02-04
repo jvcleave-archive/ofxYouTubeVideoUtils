@@ -15,9 +15,10 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
 		void keyPressed(int key);
 
         //YouTubeDownloadEventListener
-        void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e);
-        void onYouTubeDownloadEventError(YouTubeDownloadEventData& e);
-		
+        void onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e);
+        void onYouTubeDownloadError(YouTubeDownloadEventData& e);
+		void onYouTubeAllVideosDownloadComplete(){};
+    
 		vector<string> videoIDs;
 		int videoCounter;
 

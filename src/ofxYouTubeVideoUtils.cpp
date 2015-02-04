@@ -114,7 +114,7 @@ void sanitizeString(string& dirtyString)
     replaceCharacter(dirtyString, '(', '_');
     replaceCharacter(dirtyString, ')', '_');
     replaceCharacter(dirtyString, ' ', '_');
-                     
+    replaceCharacter(dirtyString, '"', '_');                 
 }
 string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default: false
 {
@@ -138,15 +138,8 @@ string ofxYouTubeVideoUtils::createFileName(YouTubeVideoURL& videoURL) //default
 
     
     YouTubeFormat& format = videoURL.format;
-    switch (format.container)
-    {
-        case YouTubeFormat::CONTAINER_3GP:  { name << ".3gp";   break;  }
-        case YouTubeFormat::CONTAINER_FLV:  { name << ".flv";   break;  }
-        case YouTubeFormat::CONTAINER_MP4:  { name << ".mp4";   break;  }
-        case YouTubeFormat::CONTAINER_WEBM: { name << ".webm";  break;  }
-        case YouTubeFormat::CONTAINER_TS:   { name << ".ts";  break;  }
-        default:                            { name << ".unknownformat"; }
-    }
+
+    name << format.getFileExtension();
     
     string fileName;
     string folderName;
@@ -350,7 +343,7 @@ void ofxYouTubeVideoUtils::onVideoHTTPResponse(ofHttpResponse& response)
     }
     if (downloadRequests.empty())
     {
-        ofLogVerbose(__func__) << "ALL DOWNLOADS COMPLETE";
+        broadcastAllDownloadsComplete();
     }
 }
 
@@ -367,13 +360,19 @@ void ofxYouTubeVideoUtils::handleRedirect(YouTubeDownloadRequest downloadRequest
 void ofxYouTubeVideoUtils::broadcastDownloadEventComplete(YouTubeDownloadEventData& eventData)
 {
     if(!listener) return;
-    listener->onYouTubeDownloadEventComplete(eventData);
+    listener->onYouTubeVideoDownloadComplete(eventData);
 }
 
 void ofxYouTubeVideoUtils::broadcastDownloadEventError(YouTubeDownloadEventData& eventData)
 {
     if(!listener) return;
-    listener->onYouTubeDownloadEventError(eventData);
+    listener->onYouTubeDownloadError(eventData);
+}
+
+void ofxYouTubeVideoUtils::broadcastAllDownloadsComplete()
+{
+    if(!listener) return;
+    listener->onYouTubeAllVideosDownloadComplete();
 }
 
 

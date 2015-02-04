@@ -57,6 +57,7 @@ public:
 class YouTubeDownloadEventListener
 {
 public:
-    virtual void onYouTubeDownloadEventComplete(YouTubeDownloadEventData&) = 0;
-    virtual void onYouTubeDownloadEventError(YouTubeDownloadEventData&) = 0;
+    virtual void onYouTubeVideoDownloadComplete(YouTubeDownloadEventData&) = 0;
+    virtual void onYouTubeDownloadError(YouTubeDownloadEventData&) = 0;
+    virtual void onYouTubeAllVideosDownloadComplete() = 0;
 };

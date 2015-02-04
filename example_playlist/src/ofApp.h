@@ -20,8 +20,9 @@ class ofApp : public ofBaseApp, public YouTubeDownloadEventListener{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-    void onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e);
-    void onYouTubeDownloadEventError(YouTubeDownloadEventData& e);
+    void onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e);
+    void onYouTubeDownloadError(YouTubeDownloadEventData& e);
+    void onYouTubeAllVideosDownloadComplete(){};
     
     ofxYouTubeVideoUtils youTubeUtils;
     

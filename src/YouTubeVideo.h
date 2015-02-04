@@ -23,8 +23,8 @@ public:
     
     YouTubeVideo();
     bool fetchInfo(string videoID_);
-    vector<YouTubeVideoURL> getPreferredFormats(vector<YouTubeFormat>&);
-    vector<YouTubeVideoURL> getPreferredFormats(vector<int>&);
+    vector<YouTubeVideoURL> getURLs(vector<YouTubeFormat>&);
+    vector<YouTubeVideoURL> getURLs(vector<int>&);
     
     string getLargestImagePathAvailable();
    

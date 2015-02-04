@@ -1,7 +1,7 @@
 #include "ofApp.h"
 
 
-void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
+void ofApp::onYouTubeVideoDownloadComplete(YouTubeDownloadEventData& e)
 {
     info << "\n" << "COMPLETED ";
     info << e.downloadRequest.videoURL.metadata.toString();
@@ -10,7 +10,7 @@ void ofApp::onYouTubeDownloadEventComplete(YouTubeDownloadEventData& e)
     
 }
 
-void ofApp::onYouTubeDownloadEventError(YouTubeDownloadEventData& e)
+void ofApp::onYouTubeDownloadError(YouTubeDownloadEventData& e)
 {
     ofLogVerbose(__func__) << e.message;
     
@@ -63,11 +63,11 @@ void ofApp::setup(){
             {
                 
                 YouTubeFormat largestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
-                vector<YouTubeFormat> selectedFormats; //getPreferredFormats takes a vector
+                vector<YouTubeFormat> selectedFormats; //getURLs takes a vector
                 selectedFormats.push_back(largestFormat);
                 
                 
-                vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getPreferredFormats(selectedFormats);
+                vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getURLs(selectedFormats);
                 ofLogVerbose(__func__) << "urlsForPreferredFormats SIZE: " << urlsForPreferredFormats.size();
                 youTubeVideoURLs.insert(youTubeVideoURLs.end(), urlsForPreferredFormats.begin(), urlsForPreferredFormats.end());
             }else

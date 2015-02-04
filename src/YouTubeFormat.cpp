@@ -39,7 +39,20 @@ void YouTubeFormat::print()
     ofLogVerbose(__func__) << "\n" << toString();
 }
 
-
+string YouTubeFormat::getFileExtension()
+{
+    stringstream name;
+    switch (container)
+    {
+        case YouTubeFormat::CONTAINER_3GP:  { name << ".3gp";   break;  }
+        case YouTubeFormat::CONTAINER_FLV:  { name << ".flv";   break;  }
+        case YouTubeFormat::CONTAINER_MP4:  { name << ".mp4";   break;  }
+        case YouTubeFormat::CONTAINER_WEBM: { name << ".webm";  break;  }
+        case YouTubeFormat::CONTAINER_TS:   { name << ".ts";  break;  }
+        default:                            { name << ".unknownformat"; }     
+    }
+    return name.str();
+}
 string YouTubeFormat::streamTypeToString(STREAM stream)
 {
     stringstream info;

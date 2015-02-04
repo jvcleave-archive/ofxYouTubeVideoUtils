@@ -26,7 +26,7 @@ void ofApp::setup()
     
     
     //format 18 is good for the RPi
-    vector<int> selectedFormats; //getPreferredFormats takes a vector
+    vector<int> selectedFormats; //getURLs takes a vector
     selectedFormats.push_back(18);
     
     
@@ -37,7 +37,7 @@ void ofApp::setup()
         {
             
             //youTubeUtils.downloadAllImages(videoInfo);
-            vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getPreferredFormats(selectedFormats);
+            vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getURLs(selectedFormats);
             ofLogVerbose(__func__) << "urlsForPreferredFormats SIZE: " << urlsForPreferredFormats.size();
             youTubeVideoURLs.insert(youTubeVideoURLs.end(), urlsForPreferredFormats.begin(), urlsForPreferredFormats.end());
             
@@ -99,11 +99,12 @@ void ofApp::draw()
 {
     omxPlayer.draw(0, 0, ofGetWidth(), ofGetHeight());
     stringstream info;
-    info <<  "APP FPS: " << ofGetFrameRate() << "\n";
+    info << omxPlayer.getInfo() << "\n";
     info << youTubeVideoURLs[videoCounter].metadata.toString() << "\n";
     
     
     ofDrawBitmapStringHighlight(info.str(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
+    
 }
 
 //--------------------------------------------------------------
