@@ -113,7 +113,7 @@ void ofApp::loadNextMovie()
         videoCounter = 0;
     }
     
-    omxPlayer.loadMovie(downloadedYouTubeVideoURLs[videoCounter]);
+    omxPlayer.loadMovie(downloadedYouTubeVideoURLs[videoCounter].localFilePath);
     currentMetaData = downloadedYouTubeVideoURLs[videoCounter].metadata;
 
     doLoadNextMovie = false;
