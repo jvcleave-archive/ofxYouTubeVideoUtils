@@ -206,6 +206,47 @@ bool YouTubeVideo::fetchInfo(string videoID_)
     return wasSuccessful;
 }
 
+bool YouTubeVideo::isFormatAvailable(YouTubeFormat& format)
+{
+    return isFormatAvailable(format.itag);
+
+}
+bool YouTubeVideo::isFormatAvailable(int)
+{
+    bool formatAvailable = false;
+    for(size_t i=0; i<videoURLs.size(); i++)
+    {
+        
+        if(videoURLs[i].format.itag == itag)
+        {
+            formatAvailable = true;
+            break;
+        }
+    }
+    return formatAvailable;
+}
+
+
+YouTubeVideoURL YouTubeVideo::getURL(YouTubeFormat& format)
+{
+    return getURL(format.itag);
+}
+
+YouTubeVideoURL YouTubeVideo::getURL(int itag)
+{
+    YouTubeVideoURL videoURL;
+    for(size_t i=0; i<videoURLs.size(); i++)
+    {
+        
+        if(videoURLs[i].format.itag == itag)
+        {
+            videoURL = videoURLs[i];
+        }
+    }
+    return videoURL;
+}
+
+
 vector<YouTubeVideoURL> YouTubeVideo::getURLs(vector<YouTubeFormat>& preferredFormats)
 {
     vector<YouTubeVideoURL> preferredURLs;

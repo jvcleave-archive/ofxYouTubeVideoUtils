@@ -23,6 +23,11 @@ public:
     
     YouTubeVideo();
     bool fetchInfo(string videoID_);
+    bool isFormatAvailable(YouTubeFormat&);
+    bool isFormatAvailable(int);
+    
+    YouTubeVideoURL getURL(YouTubeFormat&);
+    YouTubeVideoURL getURL(int);
     vector<YouTubeVideoURL> getURLs(vector<YouTubeFormat>&);
     vector<YouTubeVideoURL> getURLs(vector<int>&);
     

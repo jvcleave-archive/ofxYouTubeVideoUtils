@@ -24,22 +24,53 @@ void ofApp::setup()
     
     videoIDs = youTubeUtils.getVideoIDsFromPlaylist(playlistID);
     
-    
-    //format 18 is good for the RPi
-    vector<int> selectedFormats; //getURLs takes a vector
-    selectedFormats.push_back(18);
-    
-    
     for(size_t i=0; i<videoIDs.size(); i++)
     {
         YouTubeVideo videoInfo = youTubeUtils.loadVideoInfo(videoIDs[i]);
         if(videoInfo.isAvailable)
         {
-            
             //youTubeUtils.downloadAllImages(videoInfo);
+            
+           //format 22 is the best for the RPi (Audio/Video, 720P, MP4) but may not be available
+            YouTubeVideoURL videoURL;
+            if(videoInfo.isFormatAvailable(22))
+            {
+                videoURL = videoInfo.getURL(22);
+                youTubeVideoURLs.push_back(videoURL);
+            }else
+            {
+                //22 not available - look for 18 (Audio/Video, 360P, MP4)
+                if(videoInfo.isFormatAvailable(18))
+                {
+                    videoURL = videoInfo.getURL(18);
+                    youTubeVideoURLs.push_back(videoURL);
+                }
+            
+            }
+            
+            //In case 18 or 22 are not available
+            if (videoURL.url.empty()) 
+            {
+                
+                YouTubeFormat lastDitchFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
+                videoURL = videoInfo.getURL(lastDitchFormat);
+                
+            }
+            if(!videoURL.url.empty())
+            {
+                youTubeVideoURLs.push_back(videoURL);
+            }
+            
+            //if you want multiple versions for the same video you can do this
+#if 0
+            //getURLs can take a vector of YouTubeFormat or ints (itags)
+            vector<int> selectedFormats; 
+            selectedFormats.push_back(18);
+            selectedFormats.push_back(22);
+            
             vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getURLs(selectedFormats);
-            ofLogVerbose(__func__) << "urlsForPreferredFormats SIZE: " << urlsForPreferredFormats.size();
             youTubeVideoURLs.insert(youTubeVideoURLs.end(), urlsForPreferredFormats.begin(), urlsForPreferredFormats.end());
+#endif
             
         }
     }
