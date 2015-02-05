@@ -36,23 +36,21 @@ void ofApp::setup()
             if(videoInfo.isFormatAvailable(22))
             {
                 videoURL = videoInfo.getURL(22);
-                youTubeVideoURLs.push_back(videoURL);
             }else
             {
                 //22 not available - look for 18 (Audio/Video, 360P, MP4)
                 if(videoInfo.isFormatAvailable(18))
                 {
                     videoURL = videoInfo.getURL(18);
-                    youTubeVideoURLs.push_back(videoURL);
                 }
-            
             }
             
             //In case 18 or 22 are not available
             if (videoURL.url.empty()) 
             {
                 
-                YouTubeFormat lastDitchFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
+                YouTubeFormat lastDitchFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO,
+                                                                                    YouTubeFormat::CONTAINER_MP4);
                 videoURL = videoInfo.getURL(lastDitchFormat);
                 
             }
@@ -132,6 +130,8 @@ void ofApp::draw()
     stringstream info;
     info << omxPlayer.getInfo() << "\n";
     info << youTubeVideoURLs[videoCounter].metadata.toString() << "\n";
+    info << "YouTubeFormat: " << youTubeVideoURLs[videoCounter].format.toString() << "\n";
+    info << "videoCounter: " << videoCounter << "\n";
     
     
     ofDrawBitmapStringHighlight(info.str(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);

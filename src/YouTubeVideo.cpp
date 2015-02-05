@@ -211,7 +211,7 @@ bool YouTubeVideo::isFormatAvailable(YouTubeFormat& format)
     return isFormatAvailable(format.itag);
 
 }
-bool YouTubeVideo::isFormatAvailable(int)
+bool YouTubeVideo::isFormatAvailable(int itag)
 {
     bool formatAvailable = false;
     for(size_t i=0; i<videoURLs.size(); i++)
@@ -241,6 +241,7 @@ YouTubeVideoURL YouTubeVideo::getURL(int itag)
         if(videoURLs[i].format.itag == itag)
         {
             videoURL = videoURLs[i];
+            break;
         }
     }
     return videoURL;
