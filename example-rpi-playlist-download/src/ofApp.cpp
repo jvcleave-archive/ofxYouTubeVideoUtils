@@ -162,7 +162,7 @@ void ofApp::loadNextMovie()
     }
     
     omxPlayer.loadMovie(downloadedYouTubeVideoURLs[videoCounter].localFilePath);
-    currentMetaData = downloadedYouTubeVideoURLs[videoCounter].metadata;
+    currentVideoURL = downloadedYouTubeVideoURLs[videoCounter];
 
     doLoadNextMovie = false;
 }
@@ -173,7 +173,7 @@ void ofApp::update()
     if(!hasVideoPlayerStarted && !downloadedYouTubeVideoURLs.empty())
     {
         startVideoPlayer(downloadedYouTubeVideoURLs[videoCounter]);
-        currentMetaData = downloadedYouTubeVideoURLs[videoCounter].metadata;
+        currentVideoURL = downloadedYouTubeVideoURLs[videoCounter];
     }
     if (doLoadNextMovie)
     {
@@ -189,10 +189,10 @@ void ofApp::draw()
         omxPlayer.draw(0, 0, ofGetWidth(), ofGetHeight());
         
         stringstream info;
-        info <<  "APP FPS: " << ofGetFrameRate() << "\n";
-        info << currentMetaData.toString() << "\n";
-        info << omxPlayer.getInfo() << "\n";
         
+        info << omxPlayer.getInfo() << "\n";
+        info << currentVideoURL.metadata.toString() << "\n";
+        info << currentVideoURL.format.toString() << "\n";
         
         ofDrawBitmapStringHighlight(info.str(), 60, 60, ofColor(ofColor::black, 90), ofColor::yellow);
     }

@@ -46,6 +46,6 @@ class ofApp : public ofBaseApp, public ofxOMXPlayerListener, public KeyListener,
     
         bool hasVideoPlayerStarted;
     
-        YouTubeVideoMetadata currentMetaData;
+        YouTubeVideoURL currentVideoURL;
 
 };
