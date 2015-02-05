@@ -67,53 +67,49 @@ void ofApp::setup()
                 We can ask for certain formats a few different ways
              */
             
-            vector<YouTubeVideoURL> urlsForPreferredFormats;
             
-            bool useiTags = false;
-            if(useiTags)
+            //format 22 is the best for the RPi (Audio/Video, 720P, MP4) but may not be available
+            
+            YouTubeVideoURL videoURL;
+            if(videoInfo.isFormatAvailable(22))
             {
-                /*
-                 itags are known formats see table http://en.wikipedia.org/wiki/YouTube#Quality_and_formats
-                 or look at bottom of YouTubeFormat.cpp for ascii version
-                 */
-            
-                vector<int> selected_itags;  //getURLs takes a vector of itags
-                
-                /*
-                 format 22 (720P) and format 18 (360P) is good for the RPi, 18 is more common
-                 */
-                
-                 selected_itags.push_back(18);
-                //selected_itags.push_back(22);
-                
-                /*
-                 Capture the urls for available formats
-                 If there are multiple formats available you will get back multiple urls/videos
-                 */
-                
-                urlsForPreferredFormats = videoInfo.getURLs(selected_itags);                
+                videoURL = videoInfo.getURL(22);
             }else
             {
-                /*
-                 If you just want the largest video you can ask for it via getLargestResolutionVideo()
-                 However, it can be in a hard to playback form (webm) or may not contain audio, etc
-                
-                 In the RPI's case we want audio and video and a MP4 file so we specify that
-                 */
-                
-                YouTubeFormat bestFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO, YouTubeFormat::CONTAINER_MP4);
-                vector<YouTubeFormat> selectedFormats; //getURLs takes a vector of itags or YouTubeFormats
-                selectedFormats.push_back(bestFormat);
-                
-                urlsForPreferredFormats = videoInfo.getURLs(selectedFormats);
-                
+                //22 not available - look for 18 (Audio/Video, 360P, MP4)
+                if(videoInfo.isFormatAvailable(18))
+                {
+                    videoURL = videoInfo.getURL(18);
+                }
             }
             
-            /*
-             append to our list of urls to download
-             */
+            //In case 18 or 22 are not available
+            if (videoURL.url.empty()) 
+            {
+                YouTubeFormat lastDitchFormat = videoInfo.getLargestResolutionVideo(YouTubeFormat::STREAM_AUDIO_VIDEO,
+                                                                                    YouTubeFormat::CONTAINER_MP4);
+                videoURL = videoInfo.getURL(lastDitchFormat);
+                
+            }
+            if(!videoURL.url.empty())
+            {
+                youTubeVideoURLs.push_back(videoURL);
+            }
             
+            
+#if 0
+            //if you want to download multiple formats of the same video you can do this
+            
+            //getURLs can take a vector of YouTubeFormat or ints (itags)
+            vector<YouTubeVideoURL> urlsForPreferredFormats;
+            vector<int> selectedFormats; 
+            selectedFormats.push_back(18);
+            selectedFormats.push_back(22);
+            
+            vector<YouTubeVideoURL> urlsForPreferredFormats = videoInfo.getURLs(selectedFormats);
             youTubeVideoURLs.insert(youTubeVideoURLs.end(), urlsForPreferredFormats.begin(), urlsForPreferredFormats.end());
+#endif
+        
         }
     }
     
@@ -141,6 +137,7 @@ void ofApp::setup()
     }
 
 }
+
 void ofApp::startVideoPlayer(YouTubeVideoURL currentYouTubeVideoURL)
 {
     ofxOMXPlayerSettings settings;
