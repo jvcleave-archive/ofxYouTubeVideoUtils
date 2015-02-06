@@ -43,7 +43,7 @@ class ofxYouTubeVideoUtils
     
         static bool GROUP_DOWNLOADS_INTO_FOLDERS;
         static bool USE_PRETTY_NAMES;
-
+        void urlResponse(ofHttpResponse&);
     private:
         YouTubeDownloadEventListener* listener;
     
@@ -54,7 +54,8 @@ class ofxYouTubeVideoUtils
     
         void handleRedirect(YouTubeDownloadRequest downloadRequest, string redirectedURL, string filePath);
         void onVideoHTTPResponse(ofHttpResponse&);
-    
-    
+        
+        string playlistIDName;
+
 };
 
