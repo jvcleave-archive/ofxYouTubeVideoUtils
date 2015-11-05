@@ -1,2 +1,1 @@
-
-# RIP due to Youtube changes
+RIP due to Youtube changes
